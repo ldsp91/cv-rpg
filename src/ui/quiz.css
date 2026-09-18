@@ -1,0 +1,122 @@
+/* The quiz Challenge — a block inside the fixed bottom strip below the
+ * canvas (#ui), like the dialogue. Dark palette matching src/styles.css:
+ * #101018 bg, #1c1c2a panel, #2a2a3a border, #e8e8f0 text, #9a9ab5 muted,
+ * #ffd75e gold, #7ee787 soft green. */
+
+.quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quiz-progress {
+  align-self: flex-start;
+  background: #1c1c2a;
+  border: 2px solid #2a2a3a;
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  color: #9a9ab5;
+  letter-spacing: 0.02em;
+}
+
+.quiz-question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #1c1c2a;
+  border: 2px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 0.625rem 0.75rem;
+}
+
+.quiz-question-text p,
+.quiz-option p,
+.quiz-note p {
+  margin: 0;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.quiz-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #101018;
+  border: 1px solid #2a2a3a;
+  border-radius: 6px;
+  color: #e8e8f0;
+  font: inherit;
+  line-height: 1.4;
+  padding: 0.375rem 0.625rem;
+  cursor: pointer;
+}
+
+.quiz-option:hover:not(:disabled) {
+  border-color: #ffd75e;
+  color: #ffd75e;
+}
+
+.quiz-option:disabled {
+  cursor: default;
+}
+
+/* A rejected pick: dimmed and disabled, no alarm — the remaining options
+   stay open, the player keeps trying. */
+.quiz-option-rejected {
+  opacity: 0.4;
+  border-color: #2a2a3a;
+}
+
+/* The correct option once the question is answered: soft green. */
+.quiz-option-correct {
+  border-color: #7ee787;
+  color: #7ee787;
+}
+
+.quiz-rejection {
+  color: #9a9ab5;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* The per-question note: muted, small, set off from the options. */
+.quiz-note {
+  border-top: 1px solid #2a2a3a;
+  padding-top: 0.375rem;
+  color: #9a9ab5;
+  font-size: 0.85rem;
+}
+
+.quiz-note p {
+  margin: 0.25rem 0;
+}
+
+/* The solved state: the gentle closing line in the soft green tone. */
+.quiz-solved {
+  background: #1c1c2a;
+  border: 2px solid #7ee787;
+  border-radius: 8px;
+  color: #7ee787;
+  padding: 0.625rem 0.75rem;
+}
+
+.quiz-done {
+  align-self: flex-end;
+  background: #1c1c2a;
+  border: 1px solid #7ee787;
+  border-radius: 6px;
+  color: #7ee787;
+  font: inherit;
+  padding: 0.375rem 1rem;
+  cursor: pointer;
+}
+
+.quiz-done:hover {
+  border-color: #ffd75e;
+  color: #ffd75e;
+}
