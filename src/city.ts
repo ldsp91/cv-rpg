@@ -48,6 +48,9 @@ export class CityScene extends Phaser.Scene {
   /** Proximity edge trigger: true while the player stands within the
    *  dialogue radius of the NPC, so openDialogue fires only on entering. */
   private inside: Record<string, boolean> = {};
+  /** The banner-flip subscription: unsubscribed on shutdown so a scene
+   *  restart cannot leave a listener behind touching destroyed signs. */
+  private signUnsub?: () => void;
 
   constructor() {
     super("City");
@@ -122,7 +125,7 @@ export class CityScene extends Phaser.Scene {
 
     // The banner flip: on every progression change each sign shows the
     // location's state (unlocked = green, pending = the title's gold).
-    progression.subscribe(() => {
+    this.signUnsub = progression.subscribe(() => {
       for (const loc of this.layout.locations) {
         const sign = this.signs[loc.id]!;
         if (progression.isComplete(loc.id)) {
@@ -133,6 +136,11 @@ export class CityScene extends Phaser.Scene {
           sign.setColor("#ffd75e");
         }
       }
+    });
+    // Phaser 4 has no overridable shutdown() — it is an event.
+    this.events.once("shutdown", () => {
+      this.signUnsub?.();
+      this.signUnsub = undefined;
     });
 
     // ---- the gate at the far end -------------------------------------------

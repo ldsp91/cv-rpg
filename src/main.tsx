@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Phaser from "phaser";
 import { CityScene } from "./city";
 import { progression } from "./state";
-import { career, unlockedSkills } from "./career";
+import { advanceDialogue, career, unlockedSkills } from "./career";
 import { Dialogue } from "./ui/dialogue";
 import { Sheet } from "./ui/sheet";
 import { Hud, type View } from "./ui/hud";
@@ -65,14 +65,15 @@ function App() {
 
   const advance = useCallback(() => {
     if (!dialogueLocation) return;
-    if (line < dialogueLocation.dialogue.length - 1) {
-      setLine(line + 1);
+    const step = advanceDialogue(dialogueLocation, line);
+    if (step.kind === "reveal") {
+      setLine(step.nextLine);
     } else {
       // A talk Challenge IS its dialogue: finishing the dialogue completes
       // the Location. Quiz/coding Locations must NOT complete here — their
       // solve sequence is issue #10, and closing their dialogue without
-      // complete() is the intended hand-off.
-      if (dialogueLocation.challenge.type === "talk") {
+      // complete() is the intended hand-off (see advanceDialogue).
+      if (step.completeLocation) {
         progression.complete(dialogueLocation.id);
       }
       progression.closeDialogue();

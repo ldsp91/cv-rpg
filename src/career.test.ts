@@ -7,6 +7,7 @@ import {
   isGateOpen,
   aggregateSkills,
   unlockedSkills,
+  advanceDialogue,
   fixMatches,
   quizAnswerIsCorrect,
 } from "./career";
@@ -195,6 +196,37 @@ test("unlockedSkills: a skill at two Locations yields one entry per completed Lo
   const only = unlockedSkills(career, new Set(["current-role"]))
     .filter((e) => e.skill.name === "TypeScript");
   expect(only.map((e) => e.locationId)).toEqual(["current-role"]);
+});
+
+// --- advanceDialogue ------------------------------------------------------------
+
+test("advanceDialogue: reveals the next line while lines are left", () => {
+  const school = career.locations.find((l) => l.id === "school")!; // 3 lines
+  expect(advanceDialogue(school, 0)).toEqual({ kind: "reveal", nextLine: 1 });
+  expect(advanceDialogue(school, 1)).toEqual({ kind: "reveal", nextLine: 2 });
+});
+
+test("advanceDialogue: finishing a talk Location completes it", () => {
+  const school = career.locations.find((l) => l.id === "school")!;
+  expect(advanceDialogue(school, school.dialogue.length - 1)).toEqual({
+    kind: "finish",
+    completeLocation: true,
+  });
+
+  // A single-line dialogue finishes at line 0.
+  const oneLine = syntheticLocation({ id: "one-line", dialogue: ["<p>One.</p>"] });
+  expect(advanceDialogue(oneLine, 0)).toEqual({
+    kind: "finish",
+    completeLocation: true,
+  });
+});
+
+test("advanceDialogue: finishing a non-talk Location does NOT complete it", () => {
+  const currentRole = career.locations.find((l) => l.id === "current-role")!;
+  expect(currentRole.challenge.type).toBe("coding");
+  expect(
+    advanceDialogue(currentRole, currentRole.dialogue.length - 1),
+  ).toEqual({ kind: "finish", completeLocation: false });
 });
 
 // --- fixMatches (ADR-0005) ------------------------------------------------------
