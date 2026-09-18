@@ -7,8 +7,9 @@
  *
  * The real file is the baseline: it must pass with zero errors (no false
  * positives). Every rule is then exercised by mutating a structured clone —
- * the quiz shapes live only in the file's header comment, so quiz rules are
- * exercised by installing a quiz challenge on a cloned location.
+ * quiz rules are exercised by installing a quiz challenge on a cloned
+ * location (the real file's quiz challenge lives at locations[1],
+ * "university").
  */
 import { test, expect } from "bun:test";
 import career from "../data/career.jsonc";

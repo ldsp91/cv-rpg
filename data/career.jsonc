@@ -120,7 +120,44 @@
         "<p>Computer science, BSc. The first term was a wall of notation; the last was shipping a project you were actually proud of.</p>",
         "<p>The capstone was a small web app — and the first time JavaScript stopped being a toy: real data, real users, real bugs at 2 a.m.</p>"
       ],
-      "challenge": { "type": "talk" },
+      // Quiz: the questions, answered in order; picking the correct
+      // option for every one of them unlocks this Location. "answer"
+      // is the position of the correct option (counting from 0).
+      "challenge": {
+        "type": "quiz",
+        "questions": [
+          {
+            "question": "<p>What was the capstone project?</p>",
+            "options": [
+              "<p>A mobile game</p>",
+              "<p>A small web app</p>",
+              "<p>A hardware device</p>"
+            ],
+            "answer": 1,
+            "note": "<p>Real data, real users, real bugs at 2 a.m. — the first time JavaScript stopped being a toy.</p>"
+          },
+          {
+            "question": "<p>Which of these runs JavaScript outside the browser?</p>",
+            "options": [
+              "<p>Node.js</p>",
+              "<p>PHP</p>",
+              "<p>MySQL</p>"
+            ],
+            "answer": 0,
+            "note": "<p><code>Node.js</code> — the same language the browser runs, on the server.</p>"
+          },
+          {
+            "question": "<p>A page the server cannot find. Which status code is that?</p>",
+            "options": [
+              "<p>200</p>",
+              "<p>404</p>",
+              "<p>500</p>"
+            ],
+            "answer": 1,
+            "note": "<p>404 — <em>not found</em>. (The 500 is the one that makes you open the logs.)</p>"
+          }
+        ]
+      },
       "skills": [
         { "name": "JavaScript", "evidence": "<p>CS curriculum + capstone: a 40-user web app in vanilla JS, built and defended in the final year.</p>" },
         { "name": "Computer Science Fundamentals", "evidence": "<p>BSc Computer Science — algorithms, data structures, and the habit of drawing the design before the code.</p>" }
