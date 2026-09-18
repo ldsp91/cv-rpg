@@ -1,0 +1,444 @@
+<!doctype html>
+<!--
+  Three variants of the v1 coding-puzzle Challenge (ticket #3), switchable via ?variant=, in index.html.
+  Mock data shaped after the `coding` challenge schema settled in ticket #2 (context / code / fix / explanation).
+  The app's frame is reproduced here in plain HTML/CSS: mock Phaser canvas on top, the React-style
+  DOM overlay (#ui) below — per ADR-0003 the challenge UI lives in the overlay, never on the canvas.
+  No framework, no build step: double-click to run. Which variant wins is the owner's call.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resume RPG — coding puzzle (prototype, ticket #3)</title>
+<style>
+  /* ---------- app frame (reproduced from src/styles.css + index.html) ---------- */
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #101018;
+    color: #e8e8f0;
+    font-family: system-ui, sans-serif;
+  }
+  .game {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 1rem 1.5rem;
+  }
+  .game-canvas {
+    position: relative;
+    width: 192px;
+    height: 144px;
+    background:
+      repeating-linear-gradient(0deg,  transparent 0 15px, rgba(255,255,255,.05) 15px 16px),
+      repeating-linear-gradient(90deg, transparent 0 15px, rgba(255,255,255,.05) 15px 16px),
+      #14141f;
+    border: 2px solid #2a2a3a;
+    image-rendering: pixelated;
+    overflow: hidden;
+  }
+  .game-canvas .tile { position: absolute; width: 16px; height: 16px; }
+  .game-canvas .floor { background: #1d1d2c; }
+  .game-canvas .npc  { background: #b58ae0; left: 64px; top: 56px; }
+  .game-canvas .hero { background: #e0c26a; left: 96px; top: 80px; }
+  .game-canvas .sign {
+    position: absolute; left: 8px; top: 8px;
+    font-size: 11px; color: #9a9ab5; background: rgba(16,16,24,.8);
+    padding: 2px 6px; border: 1px solid #2a2a3a;
+  }
+  .game-canvas .sprite-label {
+    position: absolute; font-size: 10px; color: #c9c9e0; background: rgba(16,16,24,.85);
+    padding: 1px 4px;
+  }
+  .overlay-caption { text-align: center; font-size: 11px; color: #6b6b85; margin-top: .4rem; }
+
+  /* the React DOM overlay (#ui) */
+  .ui {
+    position: fixed;
+    inset: auto 0 0 0;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1rem 1rem 5rem;
+  }
+
+  /* ---------- shared components ---------- */
+  .banner {
+    display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    border: 1px solid #2a2a3a; background: #161624;
+    padding: .6rem .8rem; margin-bottom: .8rem;
+  }
+  .banner .loc { font-weight: 600; }
+  .banner .period { color: #9a9ab5; font-size: .9rem; }
+  .chip {
+    font-size: .75rem; padding: .15rem .55rem; border: 1px solid #2a2a3a;
+    color: #9a9ab5; background: #101018;
+  }
+  .chip.solved { color: #7fd1a8; border-color: #2f5a45; }
+  .cv-btn {
+    margin-left: auto; font-size: .8rem; color: #c9c9e0;
+    background: none; border: 1px solid #2a2a3a; padding: .25rem .7rem; cursor: pointer;
+  }
+  .cv-btn:hover { border-color: #4a4a6a; }
+
+  .story { font-size: .95rem; line-height: 1.5; color: #c9c9e0; }
+  .story p { margin: .35rem 0; }
+  .prompt { font-size: .95rem; margin: .8rem 0 .5rem; }
+  .prompt b { color: #e0c26a; }
+
+  pre.code {
+    background: #181824; border: 1px solid #2a2a3a;
+    padding: .6rem 0; margin: 0; overflow-x: auto;
+    font-family: ui-monospace, "Cascadia Mono", Menlo, monospace;
+    font-size: .88rem; line-height: 1.7;
+  }
+  .cline { display: flex; padding: 0 .8rem; white-space: pre; }
+  .cline .ln {
+    width: 2rem; flex: none; text-align: right; margin-right: 1rem;
+    color: #4a4a6a; user-select: none;
+  }
+  .cline .src { flex: 1; }
+  .cline .src .kw { color: #c792ea; }
+  .cline .src .fn { color: #82aaff; }
+  .cline .src .op { color: #8be9b3; }
+  .cline .src .bug { color: #e06c75; background: rgba(224,108,117,.12); border-radius: 2px; padding: 0 .15rem; }
+  .cline .src ins { color: #8be9b3; background: rgba(139,233,179,.1); text-decoration: none; border-radius: 2px; padding: 0 .15rem; }
+  .cline .src del { color: #7a5560; }
+
+  .feedback { min-height: 1.2rem; font-size: .85rem; margin-top: .4rem; }
+  .feedback.err { color: #e06c75; }
+  .feedback.hint { color: #e0c26a; }
+
+  .solved-panel { margin-top: 1rem; border: 1px solid #2f5a45; background: #122019; padding: .8rem; display: none; }
+  .solved-panel.show { display: block; }
+  .solved-panel h3 { margin: 0 0 .5rem; font-size: 1rem; color: #7fd1a8; }
+  .explain { font-size: .92rem; color: #c9e0d4; margin: 0 0 .8rem; }
+  .skill { display: flex; gap: .6rem; align-items: baseline; padding: .45rem 0; border-top: 1px solid #1f3a2d; }
+  .skill:first-of-type { border-top: none; }
+  .skill .tag { font-size: .7rem; color: #7fd1a8; border: 1px solid #2f5a45; padding: .05rem .4rem; flex: none; }
+  .skill .name { font-weight: 600; flex: none; }
+  .skill .evidence { font-size: .85rem; color: #9dbfa8; }
+  .skill .evidence p { margin: 0; }
+  .replay {
+    margin-top: .8rem; background: none; border: none; color: #6b6b85;
+    font-size: .8rem; cursor: pointer; padding: 0;
+  }
+  .replay:hover { color: #c9c9e0; }
+
+  /* ---------- variant A: click the broken line ---------- */
+  .a-line { width: 100%; text-align: left; background: none; border: none; color: inherit; font: inherit; cursor: pointer; }
+  .a-line:hover { background: rgba(255,255,255,.04); }
+  .a-line:disabled { cursor: default; }
+  .a-line:disabled:hover { background: none; }
+  .shake { animation: shake .3s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  /* ---------- variant B: pick the fix (options) ---------- */
+  .b-opts { display: flex; flex-direction: column; gap: .5rem; margin-top: .8rem; }
+  .b-opt {
+    font-family: ui-monospace, Menlo, monospace; font-size: .88rem;
+    text-align: left; background: #181824; color: #c9c9e0;
+    border: 1px solid #2a2a3a; padding: .6rem .8rem; cursor: pointer;
+  }
+  .b-opt:hover { border-color: #4a4a6a; }
+  .b-opt.wrong { color: #7a5560; border-color: #4a2b31; cursor: default; opacity: .6; }
+  .b-flag { color: #e06c75; margin-right: .6rem; }
+
+  /* ---------- variant C: fill in the blank ---------- */
+  .c-input {
+    font-family: ui-monospace, Menlo, monospace; font-size: .95rem;
+    width: 6ch; text-align: center;
+    background: #101018; color: #8be9b3; border: 1px solid #3a3a55;
+    padding: .05rem .2rem;
+  }
+  .c-input:focus { outline: none; border-color: #8be9b3; }
+  .c-blank {
+    display: inline-block; min-width: 4ch; border-bottom: 2px dashed #8be9b3;
+    color: #4a4a6a; text-align: center; font-style: italic; font-size: .8em;
+  }
+  .c-row { display: flex; gap: .6rem; align-items: center; margin-top: .8rem; }
+  .c-apply {
+    background: #1f3a2d; color: #7fd1a8; border: 1px solid #2f5a45;
+    padding: .35rem .9rem; cursor: pointer; font-size: .85rem;
+  }
+  .c-apply:hover { background: #274a39; }
+
+  /* ---------- floating variant switcher (prototype chrome, not the app) ---------- */
+  .switcher {
+    position: fixed; bottom: .8rem; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: .4rem;
+    background: #f0f0f5; color: #101018; border: 1px solid #101018;
+    padding: .35rem .5rem; box-shadow: 0 4px 14px rgba(0,0,0,.5); z-index: 50;
+  }
+  .switcher button {
+    background: none; border: none; font-size: 1rem; cursor: pointer;
+    padding: .1rem .5rem; color: #101018;
+  }
+  .switcher .label { font-size: .8rem; font-weight: 600; min-width: 16ch; text-align: center; }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+
+<script>
+// MOCK DATA — shaped after the `coding` challenge in the Career file
+// (schema settled in ticket #2: context / code / fix / explanation;
+//  plus the Location's skills for the unlock reveal).
+// `options` and the blank are presentation fields — owned by THIS ticket's
+// mechanics, not part of the Career file schema.
+const LOCATION = {
+  id: "first-job",
+  title: "Acme Corp",
+  period: "2019 – 2022",
+  npcName: "Sam",
+  challenge: {
+    type: "coding",
+    context: "<p>First week at Acme. Since this morning, the support portal has been refusing to log in anyone who is <em>exactly 18</em>. HR is calling every hour. The check lives in one tiny function — the bug is obvious once you see it.</p>",
+    code: "function canLogin(user) {\n  return user.age > 18;\n}",
+    fix: "return user.age >= 18;",
+    // the buggy line, for masking (variant C) and diffing (A, B)
+    buggyLine: "return user.age > 18;",
+    explanation: "<p><code>&gt;</code> means <em>strictly greater than</em>, so <code>18 &gt; 18</code> is false and every 18-year-old is bounced. <code>&gt;=</code> includes 18 itself.</p>",
+    options: [
+      { code: "return user.age >= 18;", correct: true  },
+      { code: "return user.age < 18;",  correct: false },
+      { code: "return user.age == 18;", correct: false },
+    ],
+    blankBefore: "return user.age ",
+    blankAfter: " 18;",
+  },
+  skills: [
+    { name: "TypeScript",   evidence: "<p>3 years · 6 shipped services · daily driver</p>" },
+    { name: "Debugging",    evidence: "<p>On-call rotation · 40+ incidents closed</p>" },
+  ],
+};
+
+const VARIANTS = {
+  A: "A (click the broken line)",
+  B: "B (pick the fix)",
+  C: "C (fill in the blank)",
+};
+
+let state = { variant: new URLSearchParams(location.search).get("variant") ?? "A", solved: false };
+if (!VARIANTS[state.variant]) state.variant = "A";
+
+function el(html) {
+  const d = document.createElement("div");
+  d.innerHTML = html.trim();
+  return d.firstChild;
+}
+
+// tiny highlighter good enough for the mock snippet
+function hlLine(line, isBuggy) {
+  let s = line
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/(function|return)/g, '<span class="kw">$1</span>')
+    .replace(/(canLogin)/g, '<span class="fn">$1</span>');
+  if (isBuggy) s = s.replace(/&gt;/g, '<span class="bug">&gt;</span>');
+  return s;
+}
+
+// render the code block; returns { root, buggy } where buggy is the DOM line to swap on solve
+function renderCode(masked) {
+  const ch = LOCATION.challenge;
+  const pre = document.createElement("pre");
+  pre.className = "code";
+  let buggyNode = null;
+  ch.code.split("\n").forEach((line, i) => {
+    const isBuggy = line.includes(ch.buggyLine);
+    let src;
+    if (masked && isBuggy) {
+      // variant C: the operator is masked as an inline input slot
+      const indent = line.slice(0, line.indexOf(ch.buggyLine));
+      src = indent + ch.blankBefore + "<span class=\"c-blank\">· · ·</span>" + ch.blankAfter;
+    } else {
+      src = hlLine(line, isBuggy);
+    }
+    const row = el(`<div class="cline"><span class="ln">${i + 1}</span><span class="src">${src}</span></div>`);
+    if (isBuggy) { buggyNode = row; buggyNode.dataset.buggy = "1"; }
+    pre.appendChild(row);
+  });
+  return { pre, buggyNode };
+}
+
+function solvedPanel() {
+  const ch = LOCATION.challenge;
+  const skills = LOCATION.skills.map(s =>
+    `<div class="skill"><span class="tag">unlocked</span><span class="name">${s.name}</span><span class="evidence">${s.evidence}</span></div>`
+  ).join("");
+  return el(
+    `<div class="solved-panel">
+       <h3>Location unlocked — ${LOCATION.title} revealed</h3>
+       <div class="explain">${ch.explanation}</div>
+       ${skills}
+       <button class="replay">↺ replay the challenge</button>
+     </div>`);
+}
+
+function buildVariant(key) {
+  const ch = LOCATION.challenge;
+  const wrap = el(`<div></div>`);
+  const { pre, buggyNode } = renderCode(key === "C");
+
+  const story = el(`<div class="story">${ch.context}</div>`);
+  wrap.appendChild(story);
+
+  const feedback = el(`<div class="feedback"></div>`);
+  let fb = null; // current feedback node (replaced, so re-adding is safe)
+  function say(msg, cls) {
+    if (fb) fb.remove();
+    fb = el(`<div class="feedback ${cls || ""}">${msg}</div>`);
+    feedback.after(fb);
+  }
+
+  // variant A swaps live rows for <button> wrappers; keep a handle on the live buggy element
+  let liveBuggy = buggyNode;
+
+  function solve() {
+    if (state.solved) return;
+    state.solved = true;
+    // diff in place: strike the buggy line, insert the fix below it (keeping indentation)
+    const src = liveBuggy.querySelector(".src");
+    const indent = (src.textContent.match(/^\s*/) || [""])[0];
+    src.innerHTML = `<del>${src.innerHTML}</del>`;
+    const fix = document.createElement("div");
+    fix.className = "cline";
+    fix.style.borderLeft = "2px solid #2f5a45";
+    fix.innerHTML = `<span class="ln">+</span><span class="src">${indent}<ins>${hlLine(ch.fix, false)}</ins></span>`;
+    liveBuggy.after(fix);
+    document.getElementById("chip").textContent = "unlocked";
+    document.getElementById("chip").classList.add("solved");
+    const panel = solvedPanel();
+    panel.classList.add("show");
+    panel.querySelector(".replay").onclick = () => { state.solved = false; render(); };
+    wrap.appendChild(panel);
+  }
+
+  if (key === "A") {
+    wrap.appendChild(el(`<div class="prompt">The bug is hiding in <b>one line</b>. Click it.</div>`));
+    pre.querySelectorAll(".cline").forEach((row, i) => {
+      const btn = document.createElement("button");
+      btn.className = "a-line";
+      btn.style.width = "100%";
+      btn.appendChild(row.cloneNode(true));
+      row.replaceWith(btn);
+      if (row.dataset.buggy) liveBuggy = btn;
+      btn.onclick = () => {
+        if (state.solved) return;
+        if (row.dataset.buggy) { solve(); say("That's it — the off-by-one is gone.", "hint"); }
+        else {
+          say("Not that line. The bug makes <em>exactly-18</em> users fail…", "hint");
+          btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake");
+        }
+      };
+    });
+    wrap.appendChild(pre);
+  }
+
+  if (key === "B") {
+    wrap.appendChild(el(`<div class="prompt">Read the story, find what's wrong, then <b>pick the fix</b>.</div>`));
+    const buggy = pre.querySelector(".cline[data-buggy] .src");
+    buggy.insertAdjacentHTML("beforebegin", `<span class="b-flag">⚠</span>`);
+    wrap.appendChild(pre);
+    const opts = el(`<div class="b-opts"></div>`);
+    ch.options.forEach(o => {
+      const b = document.createElement("button");
+      b.className = "b-opt";
+      b.innerHTML = hlLine(o.code, false);
+      b.onclick = () => {
+        if (state.solved) return;
+        if (o.correct) { solve(); say("Correct — 18-year-olds can log in again.", "hint"); }
+        else { b.classList.add("wrong"); b.disabled = true; say("Not quite — try another.", "err"); }
+      };
+      opts.appendChild(b);
+    });
+    wrap.appendChild(opts);
+  }
+
+  if (key === "C") {
+    wrap.appendChild(el(`<div class="prompt">The operator got corrupted. <b>Type it back in</b> below the snippet.</div>`));
+    wrap.appendChild(pre);
+    const row = el(`<div class="c-row"><input class="c-input" placeholder="…?" maxlength="8" autocomplete="off" spellcheck="false" /><button class="c-apply">Apply</button></div>`);
+    const input = row.querySelector("input");
+    const apply = () => {
+      if (state.solved) return;
+      const v = input.value.trim().replace(/\s+/g, "");
+      if (v === ">=") { solve(); say("Fixed — exactly 18 now gets through.", "hint"); }
+      else if (v === ">") say("Hmm — 18 itself still fails with that.", "hint");
+      else if (v === "") say("Type the operator first.", "err");
+      else { say("That's not an operator JavaScript accepts.", "err"); input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake"); }
+      input.select();
+    };
+    row.querySelector(".c-apply").onclick = apply;
+    input.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); apply(); } };
+    wrap.appendChild(row);
+  }
+
+  wrap.appendChild(feedback);
+  return wrap;
+}
+
+function frame() {
+  const f = el(`<div class="frame"></div>`);
+  f.innerHTML = `
+    <div class="game">
+      <div>
+        <div class="game-canvas">
+          <div class="sign">${LOCATION.title} · tile 3/4</div>
+          <div class="tile npc"></div><span class="sprite-label" style="left:56px;top:40px">Sam</span>
+          <div class="tile hero"></div><span class="sprite-label" style="left:88px;top:100px">you</span>
+        </div>
+        <div class="overlay-caption">mock Phaser canvas — the real world renders here</div>
+      </div>
+    </div>
+    <div class="ui">
+      <div class="banner">
+        <span class="loc">${LOCATION.title}</span>
+        <span class="period">${LOCATION.period}</span>
+        <span class="chip" id="chip">${state.solved ? "unlocked" : "challenge"}</span>
+        <button class="cv-btn">View CV</button>
+      </div>
+    </div>`;
+  return f;
+}
+
+function render() {
+  document.getElementById("app").innerHTML = "";
+  const root = document.getElementById("app");
+  const f = frame();
+  root.appendChild(f);
+  const chip = document.getElementById("chip");
+  chip.textContent = state.solved ? "unlocked" : "challenge";
+  chip.classList.toggle("solved", state.solved);
+  const ui = f.querySelector(".ui");
+  ui.appendChild(buildVariant(state.variant));
+  // switcher
+  const keys = Object.keys(VARIANTS);
+  const sw = el(`<div class="switcher"><button class="prev">←</button><span class="label"></span><button class="next">→</button></div>`);
+  function label() { sw.querySelector(".label").textContent = VARIANTS[state.variant]; }
+  function go(i) {
+    state.variant = keys[(i + keys.length) % keys.length];
+    state.solved = false;
+    history.replaceState(null, "", "?variant=" + state.variant);
+    render();
+  }
+  sw.querySelector(".prev").onclick = () => go(keys.indexOf(state.variant) - 1);
+  sw.querySelector(".next").onclick = () => go(keys.indexOf(state.variant) + 1);
+  sw.querySelector(".label").textContent = VARIANTS[state.variant];
+  root.appendChild(sw);
+  document.onkeydown = e => {
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+    if (e.key === "ArrowLeft") go(keys.indexOf(state.variant) - 1);
+    if (e.key === "ArrowRight") go(keys.indexOf(state.variant) + 1);
+  };
+}
+
+render();
+</script>
+</body>
+</html>
