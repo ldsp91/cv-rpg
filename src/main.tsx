@@ -23,6 +23,7 @@ new Phaser.Game({
   height: 240,
   backgroundColor: "#101018",
   pixelArt: true,
+  physics: { default: "arcade", arcade: { debug: false } },
   scene: [BootScene],
 });
 
