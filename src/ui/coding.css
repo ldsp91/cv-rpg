@@ -1,0 +1,138 @@
+/* The coding puzzle panel — a normal block inside the #ui fixed bottom
+   strip, same as the dialogue strip. House palette (src/styles.css):
+   bg #101018, panel #1c1c2a, border #2a2a3a, text #e8e8f0, muted #9a9ab5. */
+
+.coding {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.coding-context,
+.coding-explanation {
+  background: #1c1c2a;
+  border: 2px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.coding-context p,
+.coding-explanation p {
+  margin: 0;
+}
+
+/* The snippet: a dark code block with a line-number gutter. */
+.coding-snippet {
+  background: #181824;
+  border: 2px solid #2a2a3a;
+  border-radius: 6px;
+  padding: 0.5rem 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.coding-line {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0 0.75rem;
+}
+
+.coding-linenum {
+  color: #4a4a6a;
+  text-align: right;
+  min-width: 1.5ch;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.coding-plus .coding-linenum {
+  color: #8be9b3;
+}
+
+.coding-linecode {
+  flex: 1;
+  white-space: pre;
+}
+
+/* The blank: an inline input, narrow, monospace. */
+.coding-input {
+  font-family: inherit;
+  font-size: inherit;
+  width: 6ch;
+  padding: 0;
+  background: transparent;
+  color: #8be9b3;
+  border: none;
+  border-bottom: 2px dashed #4a4a6a;
+  outline: none;
+}
+
+.coding-input:focus {
+  border-bottom-style: solid;
+  border-bottom-color: #8be9b3;
+}
+
+.coding-input:disabled {
+  opacity: 0.7;
+}
+
+/* The in-place diff: struck broken line, green "+" fix. */
+.coding-linecode del {
+  color: #7a5560;
+}
+
+.coding-linecode ins {
+  color: #8be9b3;
+  background: rgba(139, 233, 179, 0.1);
+  text-decoration: none;
+  border-radius: 2px;
+  padding: 0 0.15rem;
+}
+
+/* Gentle feedback: a soft line, never an alarm. */
+.coding-feedback {
+  font-size: 0.85rem;
+}
+
+.coding-feedback-nudge {
+  color: #9a9ab5;
+}
+
+.coding-feedback-reject {
+  color: #e06c75;
+}
+
+.coding-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.coding-check,
+.coding-done {
+  background: none;
+  border: 1px solid #2a2a3a;
+  border-radius: 4px;
+  color: #e8e8f0;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.875rem;
+  cursor: pointer;
+}
+
+.coding-check:hover,
+.coding-done:hover {
+  border-color: #8be9b3;
+  color: #8be9b3;
+}
+
+/* The solved block. */
+.coding-solved {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coding-unlocked {
+  color: #8be9b3;
+  font-weight: 600;
+}
