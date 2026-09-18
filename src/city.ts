@@ -189,9 +189,15 @@ export class CityScene extends Phaser.Scene {
   }
 
   override update() {
-    // Dialogue open: the player is frozen — no movement, bob, or
-    // proximity checks while the overlay owns the interaction.
-    if (progression.snapshot.dialogue !== null) {
+    // Dialogue or Challenge open: the player is frozen — no movement, bob,
+    // or proximity checks while the overlay owns the interaction. The
+    // Challenge panel gets the same freeze as the dialogue: without it,
+    // typing WASD/arrow keys into the quiz or the coding <input> would
+    // steer the player mid-answer.
+    if (
+      progression.snapshot.dialogue !== null ||
+      progression.snapshot.challenge !== null
+    ) {
       this.player.setVelocity(0, 0);
       this.bobMs = 0;
       return;
