@@ -1,0 +1,39 @@
+/* The persistent HUD bar — a fixed top-center bar over the page.
+   It never overlaps the canvas: #game's content sits below it, and the
+   bar itself floats above the page, not over the game world. */
+
+.hud {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(16, 16, 24, 0.9);
+  border: 1px solid #2a2a3a;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.hud-btn {
+  font: inherit;
+  font-size: 0.875rem;
+  color: #e8e8f0;
+  background: #1c1c28;
+  border: 1px solid #2a2a3a;
+  border-radius: 4px;
+  padding: 0.375rem 1rem;
+  cursor: pointer;
+}
+
+.hud-btn:hover {
+  background: #26263a;
+}
+
+.hud-btn-active {
+  background: #2a2a4a;
+  border-color: #ffd75e;
+  color: #ffd75e;
+}

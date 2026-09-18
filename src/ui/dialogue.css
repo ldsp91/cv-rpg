@@ -1,0 +1,43 @@
+/* The dialogue overlay — the fixed bottom strip below the canvas (#ui).
+   Dark palette matching src/styles.css: #101018 bg, #e8e8f0 text. */
+
+.dialogue {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dialogue-nameplate {
+  align-self: flex-start;
+  background: #1c1c2a;
+  border: 2px solid #2a2a3a;
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.dialogue-bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dialogue-bubble {
+  background: #1c1c2a;
+  border: 2px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.dialogue-bubble p {
+  margin: 0;
+}
+
+.dialogue-hint {
+  color: #8888a0;
+  font-size: 0.8rem;
+  text-align: right;
+}

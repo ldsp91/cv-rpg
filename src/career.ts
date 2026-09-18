@@ -8,7 +8,7 @@
  */
 
 import career from "../data/career.jsonc";
-import type { Career, Link, QuizQuestion, Skill } from "./types";
+import type { Career, Link, Location, QuizQuestion, Skill } from "./types";
 
 export { career };
 
@@ -87,6 +87,50 @@ export function aggregateSkills(career: Career): UnlockedSkill[] {
       period: location.period,
     })),
   );
+}
+
+/**
+ * The skills of the COMPLETED Locations — what the character sheet
+ * reveals. Same tagging and order as `aggregateSkills`, filtered to the
+ * completed ids; a skill name at two completed Locations stays TWO
+ * entries, each tagged with its Location.
+ */
+export function unlockedSkills(
+  career: Career,
+  completedIds: ReadonlySet<string>,
+): UnlockedSkill[] {
+  return aggregateSkills(career).filter((entry) =>
+    completedIds.has(entry.locationId),
+  );
+}
+
+/**
+ * The outcome of one dialogue advance. Pure: the host (main.tsx) owns the
+ * line state and the progression calls — this only decides what should
+ * happen next.
+ */
+export type DialogueStep =
+  | { kind: "reveal"; nextLine: number }
+  | { kind: "finish"; completeLocation: boolean };
+
+/**
+ * One advance of a Location's dialogue, given the index of the line
+ * revealed so far (`line`, 0-based).
+ *
+ * Not on the last line: reveal the next one. On the last line: the
+ * conversation ends — and a talk Challenge IS its dialogue, so finishing
+ * it completes the Location. Quiz/coding challenges are solved by their
+ * own sequences (issue #10) and must NOT complete here; closing their
+ * dialogue without completing is the intended hand-off.
+ */
+export function advanceDialogue(
+  location: Location,
+  line: number,
+): DialogueStep {
+  if (line < location.dialogue.length - 1) {
+    return { kind: "reveal", nextLine: line + 1 };
+  }
+  return { kind: "finish", completeLocation: location.challenge.type === "talk" };
 }
 
 /** ADR-0005 lenient matching: trim the ends, collapse inner whitespace

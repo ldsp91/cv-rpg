@@ -6,6 +6,8 @@ import {
   layoutOrder,
   isGateOpen,
   aggregateSkills,
+  unlockedSkills,
+  advanceDialogue,
   fixMatches,
   quizAnswerIsCorrect,
 } from "./career";
@@ -162,6 +164,69 @@ test("aggregateSkills: a name at two Locations yields two entries", () => {
 
 test("aggregateSkills: empty career yields an empty list", () => {
   expect(aggregateSkills(syntheticCareer([]))).toEqual([]);
+});
+
+// --- unlockedSkills ------------------------------------------------------------
+
+test("unlockedSkills: nothing complete reveals nothing", () => {
+  expect(unlockedSkills(career, new Set([]))).toEqual([]);
+});
+
+test("unlockedSkills: reveals completed Locations only, in file order, tagged", () => {
+  const partial = unlockedSkills(career, new Set(["first-job"]));
+
+  expect(partial.map((e) => e.locationId)).toEqual(["first-job", "first-job"]);
+  expect(partial.map((e) => e.skill.name)).toEqual(["TypeScript", "React"]);
+  expect(partial.every((e) => e.locationTitle === "First Job")).toBe(true);
+  expect(partial.every((e) => e.period === "2018 – 2022")).toBe(true);
+
+  // All complete: exactly the aggregate, order preserved.
+  const all = new Set(career.locations.map((l) => l.id));
+  expect(unlockedSkills(career, all)).toEqual(aggregateSkills(career));
+});
+
+test("unlockedSkills: a skill at two Locations yields one entry per completed Location", () => {
+  const both = unlockedSkills(
+    career,
+    new Set(["first-job", "current-role"]),
+  ).filter((e) => e.skill.name === "TypeScript");
+  expect(both.map((e) => e.locationId)).toEqual(["first-job", "current-role"]);
+
+  // Only one of the two completed: exactly one entry, tagged accordingly.
+  const only = unlockedSkills(career, new Set(["current-role"]))
+    .filter((e) => e.skill.name === "TypeScript");
+  expect(only.map((e) => e.locationId)).toEqual(["current-role"]);
+});
+
+// --- advanceDialogue ------------------------------------------------------------
+
+test("advanceDialogue: reveals the next line while lines are left", () => {
+  const school = career.locations.find((l) => l.id === "school")!; // 3 lines
+  expect(advanceDialogue(school, 0)).toEqual({ kind: "reveal", nextLine: 1 });
+  expect(advanceDialogue(school, 1)).toEqual({ kind: "reveal", nextLine: 2 });
+});
+
+test("advanceDialogue: finishing a talk Location completes it", () => {
+  const school = career.locations.find((l) => l.id === "school")!;
+  expect(advanceDialogue(school, school.dialogue.length - 1)).toEqual({
+    kind: "finish",
+    completeLocation: true,
+  });
+
+  // A single-line dialogue finishes at line 0.
+  const oneLine = syntheticLocation({ id: "one-line", dialogue: ["<p>One.</p>"] });
+  expect(advanceDialogue(oneLine, 0)).toEqual({
+    kind: "finish",
+    completeLocation: true,
+  });
+});
+
+test("advanceDialogue: finishing a non-talk Location does NOT complete it", () => {
+  const currentRole = career.locations.find((l) => l.id === "current-role")!;
+  expect(currentRole.challenge.type).toBe("coding");
+  expect(
+    advanceDialogue(currentRole, currentRole.dialogue.length - 1),
+  ).toEqual({ kind: "finish", completeLocation: false });
 });
 
 // --- fixMatches (ADR-0005) ------------------------------------------------------
