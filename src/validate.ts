@@ -124,6 +124,15 @@ function validateQuiz(value: Record<string, unknown>, path: string, errors: stri
   });
 }
 
+/**
+ * The blank is exactly `____` — four underscores. Count maximal runs of
+ * underscores of exactly that length, so a mistyped run of five (`_____`)
+ * is reported as zero blanks, not one.
+ */
+function countBlanks(code: string): number {
+  return (code.match(/_+/g) ?? []).filter((run) => run.length === 4).length;
+}
+
 function validateCoding(value: Record<string, unknown>, path: string, errors: string[]): void {
   if (!isNonEmptyString(value.context)) {
     errors.push(`${path}.context: expected a non-empty string`);
@@ -131,7 +140,7 @@ function validateCoding(value: Record<string, unknown>, path: string, errors: st
   if (!isNonEmptyString(value.code)) {
     errors.push(`${path}.code: expected a non-empty string`);
   } else {
-    const blanks = (value.code as string).match(/____/g)?.length ?? 0;
+    const blanks = countBlanks(value.code as string);
     if (blanks !== 1) {
       errors.push(`${path}.code: expected exactly one "____" (found ${blanks})`);
     }
