@@ -8,7 +8,8 @@
     "build": "bun build ./index.html --outdir dist --target browser --minify",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "check": "bun check.ts"
+    "check": "bun check.ts",
+    "extract": "bun scripts/extract-tiles.ts"
   },
   "dependencies": {
     "phaser": "4.2.1",
