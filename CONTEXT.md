@@ -19,3 +19,7 @@ _Avoid_: XP, reward, loot
 **Career file**:
 The single JSON file that holds all career content, with the text written as HTML for the game to render.
 _Avoid_: save file, content.json, data file
+
+**Final boss**:
+The capstone of the career journey at the far end of the map. In v1 it is a gate that only opens once every Location's Challenge is complete — the "combination of everything unlocked" expressed as a gate, not a fight.
+_Avoid_: boss fight, endgame

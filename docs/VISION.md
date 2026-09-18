@@ -44,8 +44,5 @@ The final product should feel like a portfolio that happens to be a game — not
 
 ## Open questions
 
-- Which real career entries populate the map — the mechanism is settled (a JSON file with HTML text); the entries themselves are still to be written.
+- Which real career entries populate the map — the mechanism is settled (a JSON file with HTML text the owner can fill out without reading code); the entries themselves are still to be written.
 - World naming and theme (ACADEMIA, TECH CITY, THE ABYSS, …) — placeholders until the real content is settled.
-- Final boss mechanic — "requires a combination of unlocked skills" is a metaphor, not a design yet.
-- Save/progress persistence — should the player be able to resume mid-game, or is the game short enough to not care?
-- Build tooling — Vite (recommended in the original notes) or the workspace's Bun-first convention; a scaffold-time decision.
