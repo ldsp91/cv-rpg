@@ -35,7 +35,7 @@ if (ui) {
   createRoot(ui).render(
     <main>
       <h1>Resume RPG</h1>
-      <p>Skeleton in place — the game world and career content land next.</p>
+      <p>Tech City is live above — walk it with WASD/arrow keys. The UI (landing, dialogue, CV) lands next.</p>
     </main>,
   );
 }

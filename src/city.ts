@@ -14,7 +14,7 @@ import cityUrl from "../assets/roguelike-city.png";
 import charsUrl from "../assets/roguelike-chars.png";
 import { career } from "./career";
 import { buildCityLayout, TILE, type CityLayout } from "./layout";
-import { CHARS, SHEET_COLS } from "./tiles";
+import { CHARS, cellIndex } from "./tiles";
 
 /** Walking speed in px/s (6 tiles/s). */
 const SPEED = 96;
@@ -87,7 +87,7 @@ export class CityScene extends Phaser.Scene {
       this.layout.spawn.x,
       this.layout.spawn.y,
       "chars",
-      hero.row * SHEET_COLS.chars + hero.col,
+      cellIndex(hero),
     );
     this.player.body!.setSize(BODY, BODY).setOffset(2, 2);
     // Phaser 4 does not default this on: without it the player walks
@@ -100,12 +100,11 @@ export class CityScene extends Phaser.Scene {
     for (let i = 0; i < this.layout.locations.length; i++) {
       const loc = this.layout.locations[i]!;
       const cell = CHARS.npcs[i % CHARS.npcs.length]!;
-      const frame = cell.row * SHEET_COLS.chars + cell.col;
       // staticImage (NOT image!): in Phaser 4 add.image creates a DYNAMIC
       // body, so the player would shove the NPC out of the world. A static
       // body keeps the NPC standing still: the player collides with it but
       // can never push it.
-      const npc = this.physics.add.staticImage(loc.npc.x, loc.npc.y, "chars", frame);
+      const npc = this.physics.add.staticImage(loc.npc.x, loc.npc.y, "chars", cellIndex(cell));
       npc.setDepth(10);
       this.physics.add.collider(this.player, npc);
       this.textAt(loc.nameplate.x, loc.nameplate.y, loc.npcName, NAME, NAME_WRAP);
@@ -176,7 +175,6 @@ export class CityScene extends Phaser.Scene {
       this.bobMs = 0;
     }
   }
-
 }
 
 /** NPC nameplate style. The positional add.text(x, y, text, style)

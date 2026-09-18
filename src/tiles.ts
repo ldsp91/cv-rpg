@@ -74,10 +74,3 @@ export const CHARS = {
     { sheet: "chars", row: 8, col: 0 },
   ] as Cell[],
 } as const;
-
-/**
- * Solid (colliding) tile roles. Everything else in the layout is walkable.
- * The scene assigns a gid per role; collision is set per gid.
- */
-export const SOLID_ROLES = ["facade", "gate", "lamp", "tree", "bench"] as const;
-export type SolidRole = (typeof SOLID_ROLES)[number];
