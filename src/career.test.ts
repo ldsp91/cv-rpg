@@ -6,6 +6,7 @@ import {
   layoutOrder,
   isGateOpen,
   aggregateSkills,
+  unlockedSkills,
   fixMatches,
   quizAnswerIsCorrect,
 } from "./career";
@@ -162,6 +163,38 @@ test("aggregateSkills: a name at two Locations yields two entries", () => {
 
 test("aggregateSkills: empty career yields an empty list", () => {
   expect(aggregateSkills(syntheticCareer([]))).toEqual([]);
+});
+
+// --- unlockedSkills ------------------------------------------------------------
+
+test("unlockedSkills: nothing complete reveals nothing", () => {
+  expect(unlockedSkills(career, new Set([]))).toEqual([]);
+});
+
+test("unlockedSkills: reveals completed Locations only, in file order, tagged", () => {
+  const partial = unlockedSkills(career, new Set(["first-job"]));
+
+  expect(partial.map((e) => e.locationId)).toEqual(["first-job", "first-job"]);
+  expect(partial.map((e) => e.skill.name)).toEqual(["TypeScript", "React"]);
+  expect(partial.every((e) => e.locationTitle === "First Job")).toBe(true);
+  expect(partial.every((e) => e.period === "2018 – 2022")).toBe(true);
+
+  // All complete: exactly the aggregate, order preserved.
+  const all = new Set(career.locations.map((l) => l.id));
+  expect(unlockedSkills(career, all)).toEqual(aggregateSkills(career));
+});
+
+test("unlockedSkills: a skill at two Locations yields one entry per completed Location", () => {
+  const both = unlockedSkills(
+    career,
+    new Set(["first-job", "current-role"]),
+  ).filter((e) => e.skill.name === "TypeScript");
+  expect(both.map((e) => e.locationId)).toEqual(["first-job", "current-role"]);
+
+  // Only one of the two completed: exactly one entry, tagged accordingly.
+  const only = unlockedSkills(career, new Set(["current-role"]))
+    .filter((e) => e.skill.name === "TypeScript");
+  expect(only.map((e) => e.locationId)).toEqual(["current-role"]);
 });
 
 // --- fixMatches (ADR-0005) ------------------------------------------------------

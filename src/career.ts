@@ -89,6 +89,21 @@ export function aggregateSkills(career: Career): UnlockedSkill[] {
   );
 }
 
+/**
+ * The skills of the COMPLETED Locations — what the character sheet
+ * reveals. Same tagging and order as `aggregateSkills`, filtered to the
+ * completed ids; a skill name at two completed Locations stays TWO
+ * entries, each tagged with its Location.
+ */
+export function unlockedSkills(
+  career: Career,
+  completedIds: ReadonlySet<string>,
+): UnlockedSkill[] {
+  return aggregateSkills(career).filter((entry) =>
+    completedIds.has(entry.locationId),
+  );
+}
+
 /** ADR-0005 lenient matching: trim the ends, collapse inner whitespace
  *  runs to single spaces, then compare case-SENSITIVELY. */
 function normalizeForFix(input: string): string {
