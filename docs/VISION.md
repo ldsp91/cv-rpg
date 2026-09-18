@@ -14,7 +14,7 @@ A small, playable 2D browser RPG / dungeon crawler. The player explores a world 
 - Each location contains a small challenge — puzzle, quiz, quest, coding puzzle, dialogue, or resource challenge — and different milestones use different mechanics, so no two locations feel the same.
 - Completing a challenge unlocks the skills and experience that a CV would list, shown as real evidence (years, projects, usage) rather than arbitrary RPG numbers.
 - Progression mirrors the real career timeline, from education through first and professional experience, projects, and leadership, to the current role.
-- The final boss is a multi-skill challenge that combines everything unlocked on the journey — a metaphor for the complete professional journey.
+- The final boss is a minimal gate at the far end of the map that only opens once every location's challenge is complete — the combination of everything unlocked, a metaphor for the complete professional journey.
 - The recruiter is never forced to play. The landing screen offers: Play Experience (the full RPG), View Resume (a traditional CV), and View Projects (a portfolio view). The game enhances the CV — it does not replace it.
 
 All career content lives in a JSON file, with the text written as HTML that the game renders. The game is a reusable template: write the career into the JSON, and it renders as the game.
@@ -28,7 +28,7 @@ The final product should feel like a portfolio that happens to be a game — not
 
 ## Scope
 
-**In scope (v1):** one small playable world — WASD/arrow-key movement, a pixel-art character on a tilemap, 3–4 career locations with NPC dialogue, a quest system, one or two simple puzzles, a skill-unlock system, a character sheet, project information, a traditional CV button always one click away, a responsive browser UI, deployable as a static website. All content driven from the JSON file.
+**In scope (v1):** one small playable world — WASD/arrow-key movement, a pixel-art character on a tilemap, 3–4 career locations with NPC dialogue, a quest system, one very easy coding puzzle, a skill-unlock system, a character sheet, project information, a traditional CV button always one click away, a responsive browser UI, deployable as a static website. All content driven from the JSON file.
 
 **Not in scope (explicit no list):**
 

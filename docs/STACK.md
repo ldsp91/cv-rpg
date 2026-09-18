@@ -63,6 +63,4 @@ docs/                     VISION.md, STACK.md, adr/
 
 ## Open items handed to the real work
 
-- Real career entries in `data/career.jsonc` (the vision's open question — entries still to be written).
-- World naming/theme (ACADEMIA, TECH CITY, …) — placeholders until content is settled.
-- Final boss mechanic — a metaphor, not a design yet.
+- Real career entries in `data/career.jsonc` (the vision's open question — entries still to be written; the mechanism is settled in the v1 spec off wayfinder map #1). World naming and the final boss mechanic are settled (Tech City — ADR-0004; minimal gate — glossary and the same spec).
