@@ -45,4 +45,3 @@ The final product should feel like a portfolio that happens to be a game — not
 ## Open questions
 
 - Which real career entries populate the map — the mechanism is settled (a JSON file with HTML text the owner can fill out without reading code); the entries themselves are still to be written.
-- World naming and theme (ACADEMIA, TECH CITY, THE ABYSS, …) — placeholders until the real content is settled.
