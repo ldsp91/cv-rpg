@@ -1,8 +1,15 @@
 {
   "namespace": "cv-rpg",
   "schemaVersion": 3,
-  "setupCommands": null,
-  "guestLocalDirs": null,
+  "setupCommands": [
+    "bun install",
+    {
+      "command": "bun --hot index.ts",
+      "background": true,
+      "healthCheck": "curl -sf http://localhost:3000 -o /dev/null"
+    }
+  ],
+  "guestLocalDirs": ["node_modules"],
   "guestEnv": null,
   "agent": {
     "interactive": {
@@ -63,7 +70,13 @@
       "sandbox": null
     },
     "setup-devtest": {
-      "sandbox": null
+      "sandbox": null,
+      "agents": {
+        "setup-devtest": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "xhigh"
+        }
+      }
     },
     "docs": {
       "sandbox": null

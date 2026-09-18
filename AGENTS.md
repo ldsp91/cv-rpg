@@ -1,3 +1,5 @@
+`docs/AGENT-TESTING.md` — how to run the dev server, reach it, and log in as a testing agent.
+
 ## Testing
 
 Use `bun test` to run tests.
