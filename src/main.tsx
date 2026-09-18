@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import Phaser from "phaser";
+import { CityScene } from "./city";
 
 // Skeleton entry point. The app is split in two (ADR-0003):
 // - Phaser owns the game world, booted once into the stable #game container.
@@ -12,7 +13,9 @@ class BootScene extends Phaser.Scene {
   }
 
   create() {
-    // Skeleton: empty scene. The world is built here in the real work.
+    // Hand off to the game world. The scene list's first scene (Boot) is the
+    // only one that auto-starts.
+    this.scene.start("City");
   }
 }
 
@@ -24,7 +27,7 @@ new Phaser.Game({
   backgroundColor: "#101018",
   pixelArt: true,
   physics: { default: "arcade", arcade: { debug: false } },
-  scene: [BootScene],
+  scene: [BootScene, CityScene],
 });
 
 const ui = document.getElementById("ui");
