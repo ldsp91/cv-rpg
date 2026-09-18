@@ -31,3 +31,22 @@ body {
   margin: 0 auto;
   padding: 1rem;
 }
+
+/* Page-level positioning for the panel slot (sheet / resume / projects). */
+.panel {
+  position: fixed;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: min(30rem, calc(100vw - 2rem));
+  background: #17171f;
+  border: 1px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
