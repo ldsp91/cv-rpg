@@ -15,6 +15,7 @@ import charsUrl from "../assets/roguelike-chars.png";
 import { career } from "./career";
 import { buildCityLayout, TILE, type CityLayout } from "./layout";
 import { CHARS, cellIndex } from "./tiles";
+import { progression } from "./state";
 
 /** Walking speed in px/s (6 tiles/s). */
 const SPEED = 96;
@@ -27,6 +28,8 @@ const BODY = 12;
  *  absorbed into the body and drift the player away. */
 const BOB_SPEED = 20;
 const BOB_PERIOD_MS = 320;
+/** NPC proximity: within this many px of the NPC opens the dialogue. */
+const DIALOGUE_RADIUS = 24;
 
 type Keys = {
   left: Phaser.Input.Keyboard.Key[];
@@ -40,6 +43,11 @@ export class CityScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private keys!: Keys;
   private bobMs = 0;
+  /** Each location's title sign: driven by progression (banner flip). */
+  private signs: Record<string, Phaser.GameObjects.Text> = {};
+  /** Proximity edge trigger: true while the player stands within the
+   *  dialogue radius of the NPC, so openDialogue fires only on entering. */
+  private inside: Record<string, boolean> = {};
 
   constructor() {
     super("City");
@@ -108,8 +116,24 @@ export class CityScene extends Phaser.Scene {
       npc.setDepth(10);
       this.physics.add.collider(this.player, npc);
       this.textAt(loc.nameplate.x, loc.nameplate.y, loc.npcName, NAME, NAME_WRAP);
-      this.textAt(loc.sign.x, loc.sign.y, loc.title, TITLE);
+      this.signs[loc.id] = this.textAt(loc.sign.x, loc.sign.y, loc.title, TITLE);
+      this.inside[loc.id] = false;
     }
+
+    // The banner flip: on every progression change each sign shows the
+    // location's state (unlocked = green, pending = the title's gold).
+    progression.subscribe(() => {
+      for (const loc of this.layout.locations) {
+        const sign = this.signs[loc.id]!;
+        if (progression.isComplete(loc.id)) {
+          sign.setText(loc.title + " — unlocked");
+          sign.setColor("#7ee787");
+        } else {
+          sign.setText(loc.title);
+          sign.setColor("#ffd75e");
+        }
+      }
+    });
 
     // ---- the gate at the far end -------------------------------------------
     this.textAt(this.layout.gate.sign.x, this.layout.gate.sign.y, this.layout.gate.title, TITLE);
@@ -127,6 +151,8 @@ export class CityScene extends Phaser.Scene {
       scene: this,
       player: this.player,
       layout: this.layout,
+      progression,
+      signs: this.signs,
     };
 
     const kb = this.input.keyboard!;
@@ -155,6 +181,25 @@ export class CityScene extends Phaser.Scene {
   }
 
   override update() {
+    // Dialogue open: the player is frozen — no movement, bob, or
+    // proximity checks while the overlay owns the interaction.
+    if (progression.snapshot.dialogue !== null) {
+      this.player.setVelocity(0, 0);
+      this.bobMs = 0;
+      return;
+    }
+
+    // NPC proximity: edge-triggered. A call only on the false→true entry
+    // into the radius means closing a dialogue while still standing in
+    // front of the NPC does not instantly re-open it.
+    for (const loc of this.layout.locations) {
+      const wasInside = this.inside[loc.id]!;
+      const dist = Math.hypot(this.player.x - loc.npc.x, this.player.y - loc.npc.y);
+      const isInside = dist <= DIALOGUE_RADIUS;
+      this.inside[loc.id] = isInside;
+      if (isInside && !wasInside) progression.openDialogue(loc.id);
+    }
+
     let dx = (this.down(this.keys.right) ? 1 : 0) - (this.down(this.keys.left) ? 1 : 0);
     let dy = (this.down(this.keys.down) ? 1 : 0) - (this.down(this.keys.up) ? 1 : 0);
     const moving = dx !== 0 || dy !== 0;
@@ -185,7 +230,8 @@ const NAME: Phaser.Types.GameObjects.Text.TextStyle = {
   color: "#cfcfe0",
   align: "center",
 };
-/** Location / gate title style. */
+/** Location / gate title style. `#ffd75e` is also the pending-banner
+ *  color re-applied by the progression subscription. */
 const TITLE: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: "monospace",
   fontSize: "8px",
