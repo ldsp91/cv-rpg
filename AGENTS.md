@@ -105,6 +105,7 @@ Resume RPG is a 2D browser RPG where my career is the map — every milestone be
 ## Map
 
 - `docs/VISION.md` — the vision; read it for the "why" behind the project.
+- `docs/STACK.md` — the chosen stack: every major technical decision with its reasoning.
 - `CONTEXT.md` — the glossary of the project's terms; created when the first term crystallises.
 - `docs/adr/` — the project's decisions, one file per decision (`NNNN-slug.md`); created when the first decision crystallises.
 - `skills/` — the project's procedures.

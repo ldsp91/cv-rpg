@@ -6,10 +6,22 @@ To install dependencies:
 bun install
 ```
 
-To run:
+To run the dev server (Bun.serve + HMR):
 
 ```bash
-bun run index.ts
+bun run dev
 ```
 
-This project was created using `bun init` in bun v1.4.0. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+To build the static site into `dist/`:
+
+```bash
+bun run build
+```
+
+To run the tests:
+
+```bash
+bun test
+```
+
+Built with [Bun](https://bun.com). See `docs/STACK.md` for the chosen stack and `docs/VISION.md` for what this is.

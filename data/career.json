@@ -1,0 +1,13 @@
+{
+  "player": {
+    "name": "Your Name",
+    "headline": "Full-Stack Web Developer"
+  },
+  "locations": [
+    {
+      "id": "placeholder",
+      "title": "Placeholder Milestone",
+      "html": "<p>This location is a placeholder. Real career content lands here as HTML — one entry per milestone, rendered by the game.</p>"
+    }
+  ]
+}
