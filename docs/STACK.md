@@ -32,7 +32,7 @@ Phaser boots exactly once into the stable `#game` container; React owns `#ui` an
 
 ## Data storage
 
-- **The Career file** — one JSON file (`data/career.json`) holding all career content, text as HTML. Static-imported (Bun inlines it into the bundle at build time), so no `fetch()` and no `file://`/subpath issues.
+- **The Career file** — one JSON-with-comments file (`data/career.jsonc`) holding all career content, text as HTML. Static-imported (Bun's first-class `jsonc` loader — bundler and runtime — inlines it into the bundle at build time), so no `fetch()` and no `file://`/subpath issues. Inline comments make the file its own filling manual (schema settled on map ticket #2); a `bun run check` validator reports typos with field-level errors.
 - **No persistence in v1**: the game is short; the user decided localStorage "too short to care" for now. The vision allows `localStorage` at most, so a save layer can be added later without breaking anything.
 - No backend, no database, no accounts — per the vision's explicit no list.
 
@@ -55,7 +55,7 @@ src/
   ui/                     React components: landing, dialogue, sheet, cv, projects
   state/                  shared game state (skills, quests)
 data/
-  career.json             the Career file (placeholder until real content is written)
+  career.jsonc            the Career file (placeholder until real content is written)
 assets/                   sprites/tilesets (free assets only)
 career.test.ts            smoke test
 docs/                     VISION.md, STACK.md, adr/
@@ -63,6 +63,6 @@ docs/                     VISION.md, STACK.md, adr/
 
 ## Open items handed to the real work
 
-- Real career entries in `data/career.json` (the vision's open question — entries still to be written).
+- Real career entries in `data/career.jsonc` (the vision's open question — entries still to be written).
 - World naming/theme (ACADEMIA, TECH CITY, …) — placeholders until content is settled.
 - Final boss mechanic — a metaphor, not a design yet.
