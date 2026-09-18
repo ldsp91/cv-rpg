@@ -7,7 +7,8 @@
     "dev": "bun --hot index.ts",
     "build": "bun build ./index.html --outdir dist --target browser --minify",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "bun check.ts"
   },
   "dependencies": {
     "phaser": "4.2.1",

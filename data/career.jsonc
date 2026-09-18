@@ -1,0 +1,193 @@
+{
+  // ============================================================================
+  // THE CAREER FILE — the single content source for the whole site.
+  //
+  // The game, the character sheet, the CV, and the projects view are all
+  // derived from this one file. To change anything on the site, change it
+  // here — never in code.
+  //
+  // HOW TO FILL THIS FILE
+  //   1. Edit the values (the part after each ": "). Leave the field names
+  //      and the commas exactly as they are.
+  //   2. Text marked (HTML) may contain tags like <p>, <em>, <code>, <a>.
+  //      Plain strings (ids, titles, periods, code, fixes) are shown
+  //      verbatim — no HTML there.
+  //   3. When you are done, run:  bun run check
+  //      It catches typos with field-level errors, e.g.
+  //        locations[1].challenge: challenge type must be one of talk | quiz | coding
+  //
+  // HOW TO ADD A LOCATION (a new milestone)
+  //   Copy one of the entries in "locations", paste it into the array, and
+  //   change its fields. Rules:
+  //     - "id" is your own slug: lowercase words, hyphens, no spaces
+  //       (like "first-job"). Never reuse an id that already exists.
+  //     - "period" is exactly what you want shown — "2019 – 2022",
+  //       "Summer 2020", "2022 – present" — it is never parsed as dates.
+  //     - "dialogue" is the ordered list of speech bubbles: one string
+  //       per line of conversation, shown in order.
+  //     - "challenge" is exactly one of: talk | quiz | coding (shapes below).
+  //     - "skills" is what unlocks when the challenge is done: real
+  //       evidence (years, projects, usage), not a number.
+  //   The map places Locations in the order they appear in this array, so
+  //   keep the array in your career's timeline order — first entry is the
+  //   first place on the map. The gate at the far end stays closed until
+  //   every Location's challenge is complete.
+  //
+  // CHALLENGE SHAPES (exactly one per Location)
+  //   Talk (just talk — finishing the dialogue unlocks the Location):
+  //     "challenge": { "type": "talk" }
+  //   Quiz (one or more multiple-choice questions, answered in order):
+  //     "challenge": {
+  //       "type": "quiz",
+  //       "questions": [
+  //         {
+  //           "question": "<p>Which one of these is JavaScript?</p>",
+  //           "options": ["<p>Pip</p>", "<p>NPM</p>", "<p>Cargo</p>"],
+  //           "answer": 1,
+  //           "note": "<p><code>npm</code> ships with Node.js.</p>"
+  //         }
+  //       ]
+  //     }
+  //     "answer" is the position of the correct option in "options",
+  //     counting from 0 (the first option is 0). "note" is optional
+  //     HTML shown after answering.
+  //   Coding (the fill-in-the-blank puzzle):
+  //     "challenge": {
+  //       "type": "coding",
+  //       "context": "<p>…what went wrong…</p>",
+  //       "code": "…the broken snippet with the broken token replaced\nby a single ____…",
+  //       "fix": "…the token that goes in the ____…",
+  //       "explanation": "<p>…why the fix works…</p>"
+  //     }
+  //     There must be exactly one "____" in "code" (four underscores), and
+  //     "fix" must be the text that makes the code right. The fix is
+  //     accepted leniently: leading/trailing spaces are ignored and runs
+  //     of spaces are collapsed, but the case must match.
+  // ============================================================================
+
+  "player": {
+    // Who you are. Shown on the landing screen and at the top of the CV.
+    "name": "Your Name",
+    "headline": "Full-Stack Web Developer",
+    // (HTML) A short paragraph about you — the CV's summary line.
+    "summary": "<p>Full-stack web developer who ships small, careful things: interfaces, tools, and the sites in between. This site is my résumé — play it, or open the CV.</p>",
+    // Links shown on the landing and CV (label + destination).
+    "links": [
+      { "label": "GitHub", "url": "https://github.com/your-name" },
+      { "label": "Website", "url": "https://your-name.dev" }
+    ]
+  },
+
+  // The world the map lives in. "name" is the city's sign; "blurb" (HTML)
+  // is the one-paragraph framing shown on the landing screen.
+  "world": {
+    "name": "Tech City",
+    "blurb": "<p>Tech City is your career, block by block: every street corner is a milestone, every building a place where you learned something real. Walk the blocks in order, talk to the people who were there, and prove the skills are yours.</p>"
+  },
+
+  // The milestones, in career timeline order — the order on the map.
+  // Keep it this way: school → university → first job → current role.
+  "locations": [
+    {
+      // Your slug for this milestone: lowercase, hyphens, unique.
+      "id": "school",
+      // The real name of this milestone — shared with the CV.
+      "title": "High School",
+      // Display string, rendered verbatim.
+      "period": "2010 – 2014",
+      // Optional: the NPC's name, shown on the nameplate.
+      "npcName": "Ms. Rivera, homeroom teacher",
+      // The conversation, in order — one speech bubble per line (HTML).
+      "dialogue": [
+        "<p>Before spreadsheets and frameworks, there was the school computer lab and a very patient librarian.</p>",
+        "<p>You built your first page there: a site for the yearbook club. It was table-based, it was ugly, and it loaded in four seconds on dial-up. It was yours.</p>",
+        "<p>Everything after is a longer version of that afternoon.</p>"
+      ],
+      // Talk: finishing the dialogue unlocks this Location.
+      "challenge": { "type": "talk" },
+      // What unlocks when the challenge is done: real evidence (HTML).
+      "skills": [
+        { "name": "HTML & CSS", "evidence": "<p>First website: the yearbook club page — hand-written tables, 14 pages, zero frameworks.</p>" },
+        { "name": "Teamwork", "evidence": "<p>Yearbook club, 4 years — shared deadlines, shared blame, shared pizza.</p>" }
+      ]
+    },
+    {
+      "id": "university",
+      "title": "University",
+      "period": "2014 – 2018",
+      "npcName": "Prof. Okafor, CS advisor",
+      "dialogue": [
+        "<p>Computer science, BSc. The first term was a wall of notation; the last was shipping a project you were actually proud of.</p>",
+        "<p>The capstone was a small web app — and the first time JavaScript stopped being a toy: real data, real users, real bugs at 2 a.m.</p>"
+      ],
+      "challenge": { "type": "talk" },
+      "skills": [
+        { "name": "JavaScript", "evidence": "<p>CS curriculum + capstone: a 40-user web app in vanilla JS, built and defended in the final year.</p>" },
+        { "name": "Computer Science Fundamentals", "evidence": "<p>BSc Computer Science — algorithms, data structures, and the habit of drawing the design before the code.</p>" }
+      ]
+    },
+    {
+      "id": "first-job",
+      "title": "First Job",
+      "period": "2018 – 2022",
+      "npcName": "Dana, engineering manager",
+      "dialogue": [
+        "<p>First real team, first real code review, first production incident — yours, on a Tuesday.</p>",
+        "<p>Four years of shipping a SaaS frontend: React in, jQuery out, and TypeScript everywhere by the end.</p>",
+        "<p>You learned to write code that other people can read at 9 a.m. That's the whole job.</p>"
+      ],
+      "challenge": { "type": "talk" },
+      "skills": [
+        { "name": "TypeScript", "evidence": "<p>Migrated a 60k-line React codebase to strict TypeScript; 3 years of daily use since.</p>" },
+        { "name": "React", "evidence": "<p>4 years shipping a SaaS frontend — dashboards, billing, and one very stubborn chart.</p>" }
+      ]
+    },
+    {
+      "id": "current-role",
+      "title": "Current Role",
+      "period": "2022 – present",
+      "npcName": "Sam, team lead",
+      "dialogue": [
+        "<p>Now: the current role. The code is yours to keep clean, and the on-call rotation is the price of admission.</p>",
+        "<p>One broken function is all it takes to bring a service down. This one is sitting right there — fix it and this block is yours.</p>"
+      ],
+      // Coding: the fill-in-the-blank puzzle. "code" holds the broken
+      // snippet with the broken token replaced by a single "____"; "fix"
+      // is what goes there; "context" and "explanation" are HTML.
+      "challenge": {
+        "type": "coding",
+        "context": "<p>The login check is broken — people who are exactly 18 get bounced at the door, and the support queue is full. Fix the operator.</p>",
+        "code": "function canLogin(user) {\n  return user.age ____ 18;\n}",
+        "fix": ">=",
+        "explanation": "<p><code>&gt;</code> means <em>strictly greater than</em>, so <code>18 &gt; 18</code> is false and every 18-year-old is bounced. <code>&gt;=</code> includes 18 itself.</p>"
+      },
+      "skills": [
+        { "name": "TypeScript", "evidence": "<p>Daily driver on the current product — API types shared between the frontend and backend, zero `any` in the new code.</p>" },
+        { "name": "Node.js", "evidence": "<p>2+ years of services and tooling in Node — queue workers, CI scripts, and the site you are standing on.</p>" }
+      ]
+    }
+  ],
+
+  // The portfolio — one career-wide list, shown in the Projects view.
+  // (HTML per entry; links just like the player's.)
+  "projects": [
+    {
+      "name": "Resume RPG",
+      "html": "<p>This site — a career rendered as a small playable 2D RPG, built to be filled in with real content.</p>",
+      "links": [{ "label": "Source", "url": "https://github.com/your-name/cv-rpg" }]
+    },
+    {
+      "name": "Sample Project",
+      "html": "<p>A placeholder project entry — replace with something you actually built, and link the live page or the repo.</p>",
+      "links": [{ "label": "Live", "url": "https://example.com" }]
+    }
+  ],
+
+  // The final gate at the far end of the map. It is the capstone of the
+  // journey, not a milestone: it stays closed until every Location's
+  // challenge is complete, and it never appears in the CV.
+  "gate": {
+    "title": "The Final Gate",
+    "html": "<p>Every milestone complete. The gate opens on the whole career — the real version of this map, with your name on the door.</p>"
+  }
+}
