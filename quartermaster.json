@@ -1,0 +1,75 @@
+{
+  "namespace": "cv-rpg",
+  "schemaVersion": 3,
+  "setupCommands": null,
+  "guestLocalDirs": null,
+  "guestEnv": null,
+  "agent": {
+    "interactive": {
+      "model": null,
+      "thinking": null,
+      "sandbox": null,
+      "skills": null,
+      "tools": null,
+      "subagents": null,
+      "systemPrompt": null,
+      "appendSystemPrompt": null
+    },
+    "run": {
+      "model": null,
+      "thinking": null,
+      "sandbox": null,
+      "skills": null,
+      "tools": null,
+      "subagents": null,
+      "systemPrompt": null,
+      "appendSystemPrompt": null
+    }
+  },
+  "workflows": {
+    "test": {
+      "sandbox": null
+    },
+    "onboarding": {
+      "sandbox": null,
+      "agents": {
+        "setup": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "medium"
+        },
+        "interview": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "xhigh"
+        }
+      }
+    },
+    "scaffold": {
+      "sandbox": null
+    },
+    "wayfinder": {
+      "sandbox": null
+    },
+    "work": {
+      "sandbox": null,
+      "settings": {
+        "loops": 1,
+        "parallelTasks": 1,
+        "parallelWorkers": 2,
+        "browserTest": false,
+        "mergeInto": null
+      }
+    },
+    "accept": {
+      "sandbox": null
+    },
+    "setup-devtest": {
+      "sandbox": null
+    },
+    "docs": {
+      "sandbox": null
+    },
+    "dream": {
+      "sandbox": null
+    }
+  }
+}
