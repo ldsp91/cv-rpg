@@ -1,24 +1,3 @@
-
-Default to using Bun instead of Node.js.
-
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Use `bunx <package> <command>` instead of `npx <package> <command>`
-- Bun automatically loads .env, so don't use dotenv.
-
-## APIs
-
-- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
-- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
-- `Bun.redis` for Redis. Don't use `ioredis`.
-- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
-- `WebSocket` is built-in. Don't use `ws`.
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
-
 ## Testing
 
 Use `bun test` to run tests.
@@ -118,3 +97,20 @@ Default five-label vocabulary, one label per canonical role. See `docs/agents/tr
 ### Domain docs
 
 Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+# About the Project:
+
+Resume RPG is a 2D browser RPG where my career is the map — every milestone becomes a location, and completing its challenges unlocks the real skills and experience behind it, with a traditional CV always one click away.
+
+## Map
+
+- `docs/VISION.md` — the vision; read it for the "why" behind the project.
+- `CONTEXT.md` — the glossary of the project's terms; created when the first term crystallises.
+- `docs/adr/` — the project's decisions, one file per decision (`NNNN-slug.md`); created when the first decision crystallises.
+- `skills/` — the project's procedures.
+
+## Hard rules
+
+- Decisions go to `docs/adr/` as `NNNN-slug.md`.
+- Glossary terms go to `CONTEXT.md`.
+- `AGENTS.md` stays a map plus hard rules — content goes into the documents it points to.
