@@ -54,7 +54,33 @@
       "sandbox": null
     },
     "wayfinder": {
-      "sandbox": null
+      "sandbox": null,
+      "agents": {
+        "chart": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "xhigh"
+        },
+        "finalize": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "medium"
+        },
+        "research": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "xhigh"
+        },
+        "prototype": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "medium"
+        },
+        "grilling": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "xhigh"
+        },
+        "task": {
+          "model": "pc-llamacpp/Qwen3.8-27B-byteshape",
+          "thinking": "xhigh"
+        }
+      }
     },
     "work": {
       "sandbox": null,
