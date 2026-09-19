@@ -1,0 +1,63 @@
+/* The capstone display: the persistent compact banner shown when the
+   final gate opens. A NON-dismissible banner, not a full-screen modal —
+   the player must still see the city and the HUD beneath/around it.
+
+   Placement: fixed, just below the fixed HUD bar (z-20), above the
+   game content (z-10 panels) — it never overlaps the canvas center or
+   the HUD buttons. z-15: between the game content and the HUD. */
+
+.capstone {
+  position: fixed;
+  top: 3.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  width: min(26rem, calc(100vw - 2rem));
+  background: rgba(12, 22, 15, 0.94);
+  border: 1px solid #35543c;
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem 0.625rem;
+  /* Non-dismissible: it intercepts nothing — the canvas and HUD keep
+     full interaction beneath/around it. */
+  pointer-events: none;
+}
+
+.capstone-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* The journey-complete mark — the open state's green, matching the
+   flipped gate sign (#7ee787). */
+.capstone-mark {
+  color: #7ee787;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.capstone-title {
+  color: #ffd75e;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.capstone-html {
+  margin-top: 0.375rem;
+  color: #c8c8d8;
+  font-size: 0.875rem;
+}
+
+.capstone-html p {
+  margin: 0;
+}
+
+@media print {
+  /* The CV is the only printable content (issue #11). */
+  .capstone {
+    display: none;
+  }
+}

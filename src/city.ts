@@ -12,7 +12,7 @@
 import Phaser from "phaser";
 import cityUrl from "../assets/roguelike-city.png";
 import charsUrl from "../assets/roguelike-chars.png";
-import { career } from "./career";
+import { career, isGateOpen } from "./career";
 import { buildCityLayout, TILE, type CityLayout } from "./layout";
 import { CHARS, cellIndex } from "./tiles";
 import { progression } from "./state";
@@ -45,6 +45,8 @@ export class CityScene extends Phaser.Scene {
   private bobMs = 0;
   /** Each location's title sign: driven by progression (banner flip). */
   private signs: Record<string, Phaser.GameObjects.Text> = {};
+  /** The gate's sign: the same flip drives its closed/open state. */
+  private gateSign!: Phaser.GameObjects.Text;
   /** Proximity edge trigger: true while the player stands within the
    *  dialogue radius of the NPC, so openDialogue fires only on entering. */
   private inside: Record<string, boolean> = {};
@@ -124,19 +126,9 @@ export class CityScene extends Phaser.Scene {
     }
 
     // The banner flip: on every progression change each sign shows the
-    // location's state (unlocked = green, pending = the title's gold).
-    this.signUnsub = progression.subscribe(() => {
-      for (const loc of this.layout.locations) {
-        const sign = this.signs[loc.id]!;
-        if (progression.isComplete(loc.id)) {
-          sign.setText(loc.title + " — unlocked");
-          sign.setColor("#7ee787");
-        } else {
-          sign.setText(loc.title);
-          sign.setColor("#ffd75e");
-        }
-      }
-    });
+    // location's state (unlocked = green, pending = the title's gold),
+    // and the gate sign shows the gate's state (see flipSigns).
+    this.signUnsub = progression.subscribe(() => this.flipSigns());
     // Phaser 4 has no overridable shutdown() — it is an event.
     this.events.once("shutdown", () => {
       this.signUnsub?.();
@@ -144,7 +136,16 @@ export class CityScene extends Phaser.Scene {
     });
 
     // ---- the gate at the far end -------------------------------------------
-    this.textAt(this.layout.gate.sign.x, this.layout.gate.sign.y, this.layout.gate.title, TITLE);
+    this.gateSign = this.textAt(
+      this.layout.gate.sign.x,
+      this.layout.gate.sign.y,
+      this.layout.gate.title,
+      TITLE,
+    );
+    // subscribe does not fire on registration: sync the signs to the
+    // current state once, so a scene start mid-journey shows the state
+    // immediately, not only after the next change.
+    this.flipSigns();
 
     // ---- bounds, camera, input ----------------------------------------------
     const w = cols * TILE;
@@ -171,6 +172,32 @@ export class CityScene extends Phaser.Scene {
       up: [kb.addKey(K.W), kb.addKey(K.UP)],
       down: [kb.addKey(K.S), kb.addKey(K.DOWN)],
     };
+  }
+
+  /** Every sign shows its current state: each Location unlocked =
+   *  green "— unlocked", pending = the title's gold. The gate opens
+   *  only when every Location's Challenge is complete — derived via
+   *  isGateOpen (spec decision 12), never stored: while closed the gate
+   *  sign keeps its gold title and NOTHING about the gate's message is
+   *  shown anywhere; open flips it exactly like an unlocked banner. */
+  private flipSigns(): void {
+    for (const loc of this.layout.locations) {
+      const sign = this.signs[loc.id]!;
+      if (progression.isComplete(loc.id)) {
+        sign.setText(loc.title + " — unlocked");
+        sign.setColor("#7ee787");
+      } else {
+        sign.setText(loc.title);
+        sign.setColor("#ffd75e");
+      }
+    }
+    if (isGateOpen(career, progression.snapshot.completed)) {
+      this.gateSign.setText(this.layout.gate.title + " — open");
+      this.gateSign.setColor("#7ee787");
+    } else {
+      this.gateSign.setText(this.layout.gate.title);
+      this.gateSign.setColor("#ffd75e");
+    }
   }
 
   /** Centered text at (x, y). Nameplates wrap to the block pitch. */

@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Phaser from "phaser";
 import { CityScene } from "./city";
 import { progression } from "./state";
-import { advanceDialogue, career, unlockedSkills } from "./career";
+import { advanceDialogue, career, isGateOpen, unlockedSkills } from "./career";
+import { Capstone } from "./ui/capstone";
 import { Dialogue } from "./ui/dialogue";
 import { Quiz } from "./ui/quiz";
 import { Coding } from "./ui/coding";
@@ -54,6 +55,10 @@ function App() {
   const [view, setView] = useState<View | "none">("none");
   // 0-based index of the line revealed so far in the open dialogue.
   const [line, setLine] = useState(0);
+  // The final gate: open only when every Location's Challenge is complete
+  // (derived, spec decision 12 — no state). While closed, nothing about
+  // the gate renders anywhere; open, the persistent capstone shows it.
+  const gateOpen = isGateOpen(career, snap.completed);
 
   const dialogueLocation = snap.dialogue
     ? (career.locations.find((loc) => loc.id === snap.dialogue!.locationId) ??
@@ -126,6 +131,7 @@ function App() {
     <>
       <Hud view={view} onToggle={onToggle} />
       {panel}
+      {gateOpen && <Capstone gate={career.gate} />}
       {dialogueLocation && (
         <Dialogue
           locationId={dialogueLocation.id}
