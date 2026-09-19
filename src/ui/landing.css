@@ -1,0 +1,102 @@
+/* The landing screen: an opaque full-viewport first impression. It sits
+   below the panel slot (z-10) so a CV/Projects panel opened from the
+   landing covers it, and above the Phaser canvas, which shows only its
+   background behind it. Dark palette matching src/styles.css. */
+
+.landing {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  overflow-y: auto;
+  background: #101018;
+  padding: 3rem 1.5rem;
+}
+
+.landing-inner {
+  max-width: 34rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* The world framing — name as the big title, blurb beneath it. */
+.landing-world {
+  border-bottom: 1px solid #2a2a3a;
+  padding-bottom: 1.25rem;
+}
+
+.landing-world-name {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  color: #ffd75e;
+}
+
+.landing-world-blurb {
+  margin: 0;
+  color: #c8c8d8;
+  font-size: 0.975rem;
+}
+
+.landing-world-blurb p {
+  margin: 0.25rem 0;
+}
+
+/* The player header — the owner's name, headline, summary, and links. */
+.landing-player-name {
+  margin: 0 0 0.25rem;
+  font-size: 1.375rem;
+}
+
+.landing-player-headline {
+  margin: 0 0 0.5rem;
+  color: #7ecbff;
+}
+
+.landing-player-summary {
+  margin: 0 0 0.75rem;
+  color: #c8c8d8;
+  font-size: 0.925rem;
+}
+
+.landing-player-summary p {
+  margin: 0.25rem 0;
+}
+
+.landing-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.landing-link {
+  color: #7ecbff;
+}
+
+.landing-link:hover {
+  text-decoration: underline;
+}
+
+/* The three actions. */
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #2a2a3a;
+}
+
+.landing-button {
+  background: #17171f;
+  color: #e8e8f0;
+  border: 1px solid #2a2a3a;
+  border-radius: 6px;
+  padding: 0.625rem 1.125rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.landing-button:hover {
+  border-color: #ffd75e;
+  color: #ffd75e;
+}

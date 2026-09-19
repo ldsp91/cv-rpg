@@ -3,8 +3,12 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Phaser from "phaser";
 import { CityScene } from "./city";
 import { progression } from "./state";
-import { advanceDialogue, career, isGateOpen, unlockedSkills } from "./career";
+import { advanceDialogue, career, deriveCV, isGateOpen, unlockedSkills } from "./career";
 import { Capstone } from "./ui/capstone";
+import { Landing } from "./ui/landing";
+import { ProjectsView } from "./ui/projects";
+import { Resume } from "./ui/resume";
+import { gameLaunched, launchGame } from "./launch";
 import { Dialogue } from "./ui/dialogue";
 import { Quiz } from "./ui/quiz";
 import { Coding } from "./ui/coding";
@@ -13,9 +17,8 @@ import { Hud, type View } from "./ui/hud";
 
 // Entry point. The app is split in two (ADR-0003):
 // - Phaser owns the game world, booted once into the stable #game container.
-// - React owns the DOM overlay in #ui (persistent HUD, dialogue, sheet, and
-//   the Resume/Projects placeholders that issue #11 will fill with the real
-//   CV and projects views).
+// - React owns the DOM overlay in #ui (landing screen, persistent HUD,
+//   dialogue, sheet, and the CV/projects panel slot).
 // React must never re-create the element Phaser has mounted into.
 
 class BootScene extends Phaser.Scene {
@@ -23,10 +26,14 @@ class BootScene extends Phaser.Scene {
     super("Boot");
   }
 
-  create() {
-    // Hand off to the game world. The scene list's first scene (Boot) is the
-    // only one that auto-starts.
-    this.scene.start("City");
+  override update() {
+    // Hand off to the game world only once the player presses "Play
+    // Experience" (React flips the launch flag). Before that the City scene
+    // is never started — no world, no movement, no proximity dialogue.
+    if (gameLaunched() && !this.scene.isActive("City")) {
+      this.scene.stop();
+      this.scene.start("City");
+    }
   }
 }
 
@@ -53,6 +60,10 @@ function App() {
     () => progression.snapshot,
   );
   const [view, setView] = useState<View | "none">("none");
+  // "landing" until "Play Experience" boots the world; the HUD is the
+  // in-game bar, so it renders only in "game" — on the landing the three
+  // landing buttons are the actions.
+  const [screen, setScreen] = useState<"landing" | "game">("landing");
   // 0-based index of the line revealed so far in the open dialogue.
   const [line, setLine] = useState(0);
   // The final gate: open only when every Location's Challenge is complete
@@ -122,14 +133,27 @@ function App() {
         onClose={() => setView("none")}
       />
     ) : view === "resume" ? (
-      <PlaceholderPanel title="Resume" text="The full CV view lands in issue #11." />
+      <Resume cv={deriveCV(career)} />
     ) : view === "projects" ? (
-      <PlaceholderPanel title="Projects" text="The projects view lands in issue #11." />
+      <ProjectsView projects={career.projects} />
     ) : null;
 
   return (
     <>
-      <Hud view={view} onToggle={onToggle} />
+      {screen === "landing" ? (
+        <Landing
+          world={career.world}
+          player={career.player}
+          onPlay={() => {
+            setScreen("game");
+            launchGame();
+          }}
+          onResume={() => setView("resume")}
+          onProjects={() => setView("projects")}
+        />
+      ) : (
+        <Hud view={view} onToggle={onToggle} />
+      )}
       {panel}
       {gateOpen && <Capstone gate={career.gate} />}
       {dialogueLocation && (
@@ -157,16 +181,6 @@ function App() {
         />
       )}
     </>
-  );
-}
-
-/** Minimal placeholder for the views issue #11 will build. */
-function PlaceholderPanel({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="panel">
-      <h2 className="panel-title">{title}</h2>
-      <p>{text}</p>
-    </div>
   );
 }
 
