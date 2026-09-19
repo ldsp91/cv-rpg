@@ -1,0 +1,50 @@
+/* The projects view: the career-wide portfolio list, rendered in the
+   panel slot (styles.css's .panel positioning). Dark palette matching
+   src/styles.css. */
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.project {
+  border: 1px solid #2a2a3a;
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+}
+
+.project-name {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  color: #ffd75e;
+}
+
+.project-html {
+  color: #c8c8d8;
+  font-size: 0.925rem;
+}
+
+.project-html p {
+  margin: 0.25rem 0;
+}
+
+.project-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.project-link {
+  color: #7ecbff;
+}
+
+.project-link:hover {
+  text-decoration: underline;
+}
+
+.projects-empty {
+  color: #9a9ab0;
+  font-style: italic;
+  margin: 0.5rem 0;
+}

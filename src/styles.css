@@ -40,6 +40,8 @@ body {
   transform: translateX(-50%);
   z-index: 10;
   width: min(30rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
   background: #17171f;
   border: 1px solid #2a2a3a;
   border-radius: 8px;
@@ -49,4 +51,23 @@ body {
 .panel-title {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
+}
+
+/* The one-line art credit (spec #6, decision 8) — pinned to the page's
+   corner, quiet, never intercepting input. */
+.footer {
+  position: fixed;
+  bottom: 0.375rem;
+  right: 0.75rem;
+  z-index: 5;
+  font-size: 0.7rem;
+  color: #66667c;
+  pointer-events: none;
+}
+
+@media print {
+  /* The CV is the only printable content (issue #11). */
+  .footer {
+    display: none;
+  }
 }
