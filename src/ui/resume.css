@@ -1,0 +1,173 @@
+/* The CV view: the traditional resume derived from the career file,
+   rendered in the panel slot (styles.css's .panel positioning). Dark
+   palette matching src/styles.css on screen; @media print below makes
+   the CV the whole page. */
+
+.resume-header {
+  border-bottom: 1px solid #2a2a3a;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.resume-name {
+  margin: 0;
+  font-size: 1.625rem;
+  color: #ffd75e;
+}
+
+.resume-headline {
+  margin: 0.125rem 0 0.5rem;
+  font-size: 1.05rem;
+  color: #7ecbff;
+}
+
+.resume-summary {
+  margin: 0;
+  color: #c8c8d8;
+  font-size: 0.925rem;
+}
+
+.resume-summary p {
+  margin: 0.25rem 0;
+}
+
+.resume-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.resume-link {
+  color: #7ecbff;
+}
+
+.resume-link:hover {
+  text-decoration: underline;
+}
+
+.resume-section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  color: #ffd75e;
+}
+
+.resume-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.resume-entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.resume-entry-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e8e8f0;
+}
+
+.resume-entry-period {
+  font-size: 0.875rem;
+  color: #9a9ab0;
+  white-space: nowrap;
+}
+
+.resume-skills {
+  margin: 0.375rem 0 0;
+  padding-left: 1.125rem;
+  color: #c8c8d8;
+  font-size: 0.925rem;
+}
+
+.resume-skill {
+  margin: 0.25rem 0;
+}
+
+.resume-skill-name {
+  font-style: italic;
+  color: #e8e8f0;
+}
+
+.resume-skill-evidence p {
+  margin: 0;
+}
+
+/* --- print: the CV is the whole page ---------------------------------------
+   White page, near-black ink, sensible margins; every other page chrome
+   (game, HUD, footer, overlays, other panels) is hidden. .resume is
+   rendered inside #ui, so #ui itself stays visible. */
+
+@media print {
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  #game,
+  .hud,
+  .footer,
+  .dialogue,
+  .quiz,
+  .coding,
+  .sheet-overlay,
+  .panel-close,
+  .panel:not(.resume),
+  /* The landing covers the whole page behind a CV opened from it —
+     without this, its dark backdrop prints on every page. */
+  .landing {
+    display: none !important;
+  }
+
+  #ui {
+    position: static;
+    max-width: none;
+    padding: 0;
+  }
+
+  .panel.resume {
+    position: static;
+    transform: none;
+    width: auto;
+    max-height: none;
+    overflow: visible;
+    background: #fff;
+    border: none;
+    border-radius: 0;
+    padding: 2rem;
+  }
+
+  .resume-header {
+    border-bottom-color: #999;
+  }
+
+  .resume-name,
+  .resume-section-title {
+    color: #111;
+  }
+
+  .resume-headline {
+    color: #333;
+  }
+
+  .resume-summary,
+  .resume-skills {
+    color: #222;
+  }
+
+  .resume-link {
+    color: #0040aa;
+  }
+
+  .resume-entry-title,
+  .resume-skill-name {
+    color: #111;
+  }
+
+  .resume-entry-period {
+    color: #444;
+  }
+}
