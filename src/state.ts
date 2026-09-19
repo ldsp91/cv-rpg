@@ -1,11 +1,11 @@
 /**
  * Shared progression state (spec #6, decision 12).
  *
- * Per-Location Challenge completion and the active dialogue live in this
- * one module, consumed by BOTH halves of the UI split (ADR-0003): the
- * Phaser scene (banner flip, player freeze) and the React overlay
- * (dialogue, character sheet). No persistence in v1 (STACK.md) — the state
- * is per page load.
+ * Per-Location Challenge completion, the active dialogue, and the open
+ * Challenge panel (quiz / coding) live in this one module, consumed by
+ * BOTH halves of the UI split (ADR-0003): the Phaser scene (banner flip,
+ * player freeze) and the React overlay (dialogue, challenges, character
+ * sheet). No persistence in v1 (STACK.md) — the state is per page load.
  *
  * Seam: `createProgression(career)` is a pure factory over the career
  * file; the scene and the overlay share the singleton `progression`.
@@ -25,6 +25,14 @@ export interface ProgressionSnapshot {
   readonly completed: ReadonlySet<string>;
   /** The open dialogue, or null. The scene freezes the player while set. */
   readonly dialogue: { locationId: string } | null;
+  /**
+   * The open Challenge panel (quiz / coding), or null. The scene freezes
+   * the player while set — the overlay owns the interaction, exactly as
+   * it does for the dialogue. A completed challenge does NOT close the
+   * panel: the solved state (e.g. the in-place diff + explanation) stays
+   * visible until the player closes it.
+   */
+  readonly challenge: { locationId: string } | null;
 }
 
 export interface Progression {
@@ -42,6 +50,16 @@ export interface Progression {
   openDialogue(locationId: string): void;
   /** Close the open dialogue; a no-op when none is open. */
   closeDialogue(): void;
+  /**
+   * Open a Location's Challenge panel — the overlay calls this when the
+   * Location's dialogue ends on a quiz / coding Location. One at a time:
+   * a call while one is open is a no-op, as is a call for an unknown id
+   * or for an already-complete Location (a replayed dialogue of a
+   * finished Location must not re-open its solved panel).
+   */
+  openChallenge(locationId: string): void;
+  /** Close the open Challenge panel; a no-op when none is open. */
+  closeChallenge(): void;
   /** Subscribe to any change; returns the unsubscribe function. */
   subscribe(listener: () => void): () => void;
 }
@@ -50,13 +68,14 @@ export function createProgression(career: Career): Progression {
   const locationIds = new Set(career.locations.map((l) => l.id));
   const completed = new Set<string>();
   let dialogue: { locationId: string } | null = null;
-  let snapshot: ProgressionSnapshot = { completed, dialogue };
+  let challenge: { locationId: string } | null = null;
+  let snapshot: ProgressionSnapshot = { completed, dialogue, challenge };
   const listeners = new Set<() => void>();
 
   const commit = (): void => {
     // New Set + new snapshot object: consumers still holding the old one
     // keep seeing the old state.
-    snapshot = { completed: new Set(completed), dialogue };
+    snapshot = { completed: new Set(completed), dialogue, challenge };
     for (const listener of [...listeners]) listener();
   };
 
@@ -78,6 +97,19 @@ export function createProgression(career: Career): Progression {
     closeDialogue: () => {
       if (dialogue === null) return;
       dialogue = null;
+      commit();
+    },
+    openChallenge: (id) => {
+      // One panel at a time; and a finished Location keeps its solved
+      // panel closed, even if its dialogue is replayed.
+      if (!locationIds.has(id) || challenge !== null || completed.has(id))
+        return;
+      challenge = { locationId: id };
+      commit();
+    },
+    closeChallenge: () => {
+      if (challenge === null) return;
+      challenge = null;
       commit();
     },
     subscribe: (listener) => {

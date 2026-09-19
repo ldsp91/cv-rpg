@@ -5,6 +5,8 @@ import { CityScene } from "./city";
 import { progression } from "./state";
 import { advanceDialogue, career, unlockedSkills } from "./career";
 import { Dialogue } from "./ui/dialogue";
+import { Quiz } from "./ui/quiz";
+import { Coding } from "./ui/coding";
 import { Sheet } from "./ui/sheet";
 import { Hud, type View } from "./ui/hud";
 
@@ -58,6 +60,11 @@ function App() {
       null)
     : null;
 
+  const challengeLocation = snap.challenge
+    ? career.locations.find((loc) => loc.id === snap.challenge!.locationId) ??
+      null
+    : null;
+
   // A newly opened dialogue always starts at the first line.
   useEffect(() => {
     if (dialogueLocation) setLine(0);
@@ -71,17 +78,22 @@ function App() {
     } else {
       // A talk Challenge IS its dialogue: finishing the dialogue completes
       // the Location. Quiz/coding Locations must NOT complete here — their
-      // solve sequence is issue #10, and closing their dialogue without
-      // complete() is the intended hand-off (see advanceDialogue).
+      // solve sequence starts when the panel opens (see advanceDialogue).
       if (step.completeLocation) {
         progression.complete(dialogueLocation.id);
+      } else {
+        // Hand off to the Challenge panel. openChallenge no-ops for
+        // unknown ids, a panel already open, and already-complete
+        // Locations, so replaying a finished Location's dialogue never
+        // re-opens its solved panel.
+        progression.openChallenge(dialogueLocation.id);
       }
       progression.closeDialogue();
     }
   }, [line, dialogueLocation]);
 
-  // Enter advances the dialogue — only while one is open, so issue #10's
-  // challenge inputs (e.g. a coding-puzzle <input>) can never advance it.
+  // Enter advances the dialogue — only while one is open, so the
+  // challenge inputs (e.g. the coding-puzzle <input>) can never advance it.
   useEffect(() => {
     if (!dialogueLocation) return;
     const onKey = (e: KeyboardEvent) => {
@@ -122,6 +134,20 @@ function App() {
           lines={dialogueLocation.dialogue}
           visibleCount={line + 1}
           onAdvance={advance}
+        />
+      )}
+      {challengeLocation?.challenge.type === "quiz" && (
+        <Quiz
+          questions={challengeLocation.challenge.questions}
+          onSolved={() => progression.complete(challengeLocation.id)}
+          onDone={() => progression.closeChallenge()}
+        />
+      )}
+      {challengeLocation?.challenge.type === "coding" && (
+        <Coding
+          challenge={challengeLocation.challenge}
+          onSolved={() => progression.complete(challengeLocation.id)}
+          onDone={() => progression.closeChallenge()}
         />
       )}
     </>

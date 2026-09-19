@@ -80,6 +80,56 @@ test("dialogue: unknown id is a no-op; close with nothing open is a no-op", () =
   expect(p.snapshot.dialogue).toBeNull();
 });
 
+// --- challenge ------------------------------------------------------------------
+
+test("challenge: openChallenge sets the Location; one at a time", () => {
+  const p = createProgression(career);
+  p.openChallenge("university");
+  expect(p.snapshot.challenge).toEqual({ locationId: "university" });
+  // A second open while one is open is a no-op (the first wins).
+  p.openChallenge("current-role");
+  expect(p.snapshot.challenge).toEqual({ locationId: "university" });
+  p.closeChallenge();
+  expect(p.snapshot.challenge).toBeNull();
+  // And it can be opened again afterwards.
+  p.openChallenge("current-role");
+  expect(p.snapshot.challenge).toEqual({ locationId: "current-role" });
+});
+
+test("challenge: unknown id is a no-op; close with nothing open is a no-op", () => {
+  const p = createProgression(career);
+  const before = p.snapshot;
+  p.openChallenge("ghost");
+  expect(p.snapshot).toBe(before);
+  p.closeChallenge();
+  expect(p.snapshot).toBe(before);
+  expect(p.snapshot.challenge).toBeNull();
+});
+
+test("challenge: openChallenge is a no-op for an already-complete Location", () => {
+  const p = createProgression(career);
+  p.complete("university");
+  const before = p.snapshot;
+  p.openChallenge("university");
+  expect(p.snapshot).toBe(before);
+  expect(p.snapshot.challenge).toBeNull();
+  // An uncompleted Location still opens.
+  p.openChallenge("current-role");
+  expect(p.snapshot.challenge).toEqual({ locationId: "current-role" });
+});
+
+test("challenge: completing does NOT close the open challenge (the solved panel stays)", () => {
+  const p = createProgression(career);
+  p.openChallenge("university");
+  p.complete("university");
+  // The banner flips and the sheet reveals via `completed`, but the panel
+  // keeps showing its solved state until the player closes it.
+  expect(p.isComplete("university")).toBe(true);
+  expect(p.snapshot.challenge).toEqual({ locationId: "university" });
+  p.closeChallenge();
+  expect(p.snapshot.challenge).toBeNull();
+});
+
 // --- subscribe / snapshot stability --------------------------------------------
 
 test("subscribe: fires once per change, reads do not fire", () => {
