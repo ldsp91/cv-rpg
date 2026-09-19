@@ -133,9 +133,17 @@ function App() {
         onClose={() => setView("none")}
       />
     ) : view === "resume" ? (
-      <Resume cv={deriveCV(career)} />
+      // On the landing the panel covers the landing and no HUD exists,
+      // so the view gets a close affordance; in-game the HUD toggles it.
+      <Resume
+        cv={deriveCV(career)}
+        onClose={screen === "landing" ? () => setView("none") : undefined}
+      />
     ) : view === "projects" ? (
-      <ProjectsView projects={career.projects} />
+      <ProjectsView
+        projects={career.projects}
+        onClose={screen === "landing" ? () => setView("none") : undefined}
+      />
     ) : null;
 
   return (

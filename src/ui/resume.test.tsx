@@ -138,6 +138,15 @@ test("an empty CV renders the header and an empty experience list, without crash
   expect(html.match(/class="resume-entry"/g) ?? []).toHaveLength(0);
 });
 
+test("renders a close button only when onClose is provided", () => {
+  const withClose = renderToString(
+    <Resume cv={syntheticCV()} onClose={() => {}} />
+  );
+  expect(withClose).toContain('aria-label="Close"');
+  const without = renderToString(<Resume cv={syntheticCV()} />);
+  expect(without.match(/<button/g) ?? []).toHaveLength(0);
+});
+
 // --- the real file ----------------------------------------------------------------
 
 test("real file: every location's title, period, and each skill's name + evidence match data/career.jsonc", () => {

@@ -53,6 +53,28 @@ body {
   font-size: 1.125rem;
 }
 
+/* Corner close affordance for a panel opened from the landing, where
+   the panel covers the landing and the in-game HUD is absent (the
+   host renders it only in that case). */
+.panel-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: 1px solid #2a2a3a;
+  border-radius: 4px;
+  color: #e8e8f0;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+
+.panel-close:hover {
+  border-color: #ffd75e;
+  color: #ffd75e;
+}
+
 /* The one-line art credit (spec #6, decision 8) — pinned to the page's
    corner, quiet, never intercepting input. */
 .footer {

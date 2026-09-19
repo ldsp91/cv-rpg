@@ -3,6 +3,13 @@ import type { CV } from "../career.ts";
 
 export interface ResumeProps {
   cv: CV;
+  /**
+   * Optional: renders a close button in the panel's corner. The host
+   * passes it only on the landing screen, where the panel covers the
+   * landing and no HUD exists to toggle it; in-game the HUD owns the
+   * toggle and no button renders.
+   */
+  onClose?: () => void;
 }
 
 /**
@@ -12,13 +19,20 @@ export interface ResumeProps {
  *
  * Dumb by contract — data in via `cv` (the host passes
  * `deriveCV(career)`), so the view can never disagree with the file and
- * the gate/projects never leak in. No career reads, no onClose (the host
- * toggles panels via the HUD). Rendered in the panel slot by main.tsx;
- * its own `@media print` rules (resume.css) make it the whole page.
+ * the gate/projects never leak in. No career reads. `onClose` is
+ * optional: on the landing the panel covers the landing, so the host
+ * passes a close affordance there; in-game the HUD toggles the panel.
+ * Rendered in the panel slot by main.tsx; its own `@media print` rules
+ * (resume.css) make it the whole page.
  */
-export function Resume({ cv }: ResumeProps) {
+export function Resume({ cv, onClose }: ResumeProps) {
   return (
     <div className="panel resume">
+      {onClose && (
+        <button className="panel-close" onClick={onClose} aria-label="Close">
+          ×
+        </button>
+      )}
       <header className="resume-header">
         <h2 className="resume-name">{cv.name}</h2>
         <p className="resume-headline">{cv.headline}</p>

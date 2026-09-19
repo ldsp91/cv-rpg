@@ -96,3 +96,12 @@ test("an empty list renders a friendly empty state", () => {
   expect(html).toContain("projects-empty");
   expect(html.match(/<a /g) ?? []).toHaveLength(0);
 });
+
+test("renders a close button only when onClose is provided", () => {
+  const withClose = renderToString(
+    <ProjectsView projects={[]} onClose={() => {}} />
+  );
+  expect(withClose).toContain('aria-label="Close"');
+  const without = renderToString(<ProjectsView projects={[]} />);
+  expect(without.match(/<button/g) ?? []).toHaveLength(0);
+});

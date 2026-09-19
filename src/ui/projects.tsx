@@ -3,6 +3,13 @@ import type { Project } from "../types";
 
 export interface ProjectsProps {
   projects: Project[];
+  /**
+   * Optional: renders a close button in the panel's corner. The host
+   * passes it only on the landing screen, where the panel covers the
+   * landing and no HUD exists to toggle it; in-game the HUD owns the
+   * toggle and no button renders.
+   */
+  onClose?: () => void;
 }
 
 /**
@@ -11,11 +18,18 @@ export interface ProjectsProps {
  *
  * Dumb by contract — data in via `projects`, no career reads (the host
  * passes `career.projects` from the file, so the view can never disagree
- * with it). Rendered inside the panel slot by main.tsx.
+ * with it). `onClose` is optional: on the landing the panel covers the
+ * landing, so the host passes a close affordance there; in-game the HUD
+ * toggles the panel. Rendered inside the panel slot by main.tsx.
  */
-export function ProjectsView({ projects }: ProjectsProps) {
+export function ProjectsView({ projects, onClose }: ProjectsProps) {
   return (
     <div className="panel projects">
+      {onClose && (
+        <button className="panel-close" onClick={onClose} aria-label="Close">
+          ×
+        </button>
+      )}
       <h2 className="panel-title">Projects</h2>
       {projects.length === 0 ? (
         <p className="projects-empty">No projects listed yet.</p>

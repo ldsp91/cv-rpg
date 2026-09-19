@@ -114,7 +114,11 @@
   .quiz,
   .coding,
   .sheet-overlay,
-  .panel:not(.resume) {
+  .panel-close,
+  .panel:not(.resume),
+  /* The landing covers the whole page behind a CV opened from it —
+     without this, its dark backdrop prints on every page. */
+  .landing {
     display: none !important;
   }
 
